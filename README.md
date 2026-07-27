@@ -1,5 +1,18 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Environment Variables
+
+Before running the project, make sure to set up your environment variables:
+
+1. Copy the `.env.example` file to create a `.env.local` file:
+
+```bash
+cp .env.example .env.local
+
+```
+
+2. Open `.env.local` and fill in the required environment variables with your own credentials/values.
+
 ## Getting Started
 
 First, run the development server:
@@ -12,6 +25,7 @@ yarn dev
 pnpm dev
 # or
 bun dev
+
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
