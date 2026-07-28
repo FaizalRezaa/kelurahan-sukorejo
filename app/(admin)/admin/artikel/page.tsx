@@ -1,0 +1,604 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  Search,
+  Check,
+  Eye,
+  MoreVertical,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { TablePagination } from "@/components/ui/table-pagination";
+import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { artikelData, ArtikelRecord } from "@/components/admin/mock-data";
+
+export default function ArtikelPage() {
+  const [artikels, setArtikels] = useState<ArtikelRecord[]>(artikelData);
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("ALL");
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const [editingItem, setEditingItem] = useState<ArtikelRecord | null>(null);
+  const [previewItem, setPreviewItem] = useState<ArtikelRecord | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Form Fields
+  const [formJudul, setFormJudul] = useState("");
+  const [formSlug, setFormSlug] = useState("");
+  const [formKategori, setFormKategori] = useState<"Berita" | "Kegiatan">("Berita");
+  const [formRingkasan, setFormRingkasan] = useState("");
+  const [formKonten, setFormKonten] = useState("");
+  const [formImagePath, setFormImagePath] = useState("");
+  const [formImagePreview, setFormImagePreview] = useState("");
+  const [formImageName, setFormImageName] = useState("");
+  const [formStatus, setFormStatus] = useState<"draft" | "terbit">("terbit");
+  const [formTanggalTerbit, setFormTanggalTerbit] = useState("");
+
+  const filteredArtikels = artikels.filter((item) => {
+    const matchSearch =
+      item.judul.toLowerCase().includes(search.toLowerCase()) ||
+      item.slug.toLowerCase().includes(search.toLowerCase()) ||
+      item.ringkasan.toLowerCase().includes(search.toLowerCase());
+
+    const matchCategory = categoryFilter === "ALL" || item.kategori === categoryFilter;
+    const matchStatus = statusFilter === "ALL" || item.status === statusFilter;
+
+    return matchSearch && matchCategory && matchStatus;
+  });
+
+  const paginatedArtikels = filteredArtikels.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  );
+
+  const slugify = (text: string) => {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  };
+
+  useEffect(() => {
+    return () => {
+      if (formImagePreview.startsWith("blob:")) {
+        URL.revokeObjectURL(formImagePreview);
+      }
+    };
+  }, [formImagePreview]);
+
+  const handleJudulChange = (val: string) => {
+    setFormJudul(val);
+    if (!editingItem) {
+      setFormSlug(slugify(val));
+    }
+  };
+
+  const handleImageFileChange = (file: File | null) => {
+    if (!file) {
+      if (formImagePreview.startsWith("blob:")) {
+        URL.revokeObjectURL(formImagePreview);
+      }
+      setFormImagePreview("");
+      setFormImageName("");
+      return;
+    }
+
+    if (formImagePreview.startsWith("blob:")) {
+      URL.revokeObjectURL(formImagePreview);
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+    const safeName = file.name
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-_.]/g, "");
+    const generatedPath = `https://kelurahan-sukorejo.s3.ap-southeast-1.amazonaws.com/artikel/${Date.now()}-${safeName}`;
+
+    setFormImagePreview(previewUrl);
+    setFormImageName(file.name);
+    setFormImagePath(generatedPath);
+  };
+
+  const handleOpenAdd = () => {
+    const today = new Date().toISOString().split("T")[0];
+    setEditingItem(null);
+    setFormJudul("");
+    setFormSlug("");
+    setFormKategori("Berita");
+    setFormRingkasan("");
+    setFormKonten("");
+    setFormImagePreview("");
+    setFormImageName("");
+    setFormImagePath("https://kelurahan-sukorejo.s3.ap-southeast-1.amazonaws.com/artikel/default-cover.jpg");
+    setFormStatus("terbit");
+    setFormTanggalTerbit(today);
+    setIsDialogOpen(true);
+  };
+
+  const handleOpenEdit = (item: ArtikelRecord) => {
+    setEditingItem(item);
+    setFormJudul(item.judul);
+    setFormSlug(item.slug);
+    setFormKategori(item.kategori);
+    setFormRingkasan(item.ringkasan);
+    setFormKonten(item.konten || "");
+    setFormImagePath(item.image_path);
+    setFormImagePreview("");
+    setFormImageName("");
+    setFormStatus(item.status);
+    setFormTanggalTerbit(item.tanggal_terbit === "-" ? new Date().toISOString().split("T")[0] : item.tanggal_terbit);
+    setIsDialogOpen(true);
+  };
+
+  const handleOpenPreview = (item: ArtikelRecord) => {
+    setPreviewItem(item);
+    setIsPreviewOpen(true);
+  };
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formJudul.trim()) return;
+
+    const today = new Date().toISOString().split("T")[0];
+
+    if (editingItem) {
+      setArtikels((prev) =>
+        prev.map((item) =>
+          item.id === editingItem.id
+            ? {
+                ...item,
+                judul: formJudul,
+                slug: formSlug || slugify(formJudul),
+                kategori: formKategori,
+                ringkasan: formRingkasan,
+                konten: formKonten,
+                image_path: formImagePath,
+                status: formStatus,
+                tanggal_terbit: formStatus === "terbit" ? formTanggalTerbit : "-",
+                updated_at: today,
+              }
+            : item
+        )
+      );
+    } else {
+      const newItem: ArtikelRecord = {
+        id: `artikel-${Date.now()}`,
+        slug: formSlug || slugify(formJudul),
+        judul: formJudul,
+        kategori: formKategori,
+        ringkasan: formRingkasan,
+        konten: formKonten,
+        image_path: formImagePath,
+        status: formStatus,
+        tanggal_terbit: formStatus === "terbit" ? formTanggalTerbit : "-",
+        created_at: today,
+        updated_at: today,
+      };
+      setArtikels((prev) => [newItem, ...prev]);
+    }
+
+    setIsDialogOpen(false);
+  };
+
+  const handleOpenDelete = (id: string) => {
+    setDeletingId(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (deletingId) {
+      setArtikels((prev) => prev.filter((item) => item.id !== deletingId));
+    }
+    setIsDeleteDialogOpen(false);
+    setDeletingId(null);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900">
+            Kelola Artikel & Berita
+          </h1>
+          <p className="text-sm text-slate-500">
+            Publikasi berita kegiatan & pengumuman kelurahan (<code className="font-mono text-slate-700">artikel</code>).
+          </p>
+        </div>
+        <Button onClick={handleOpenAdd} size="sm" className="gap-2 text-sm font-semibold px-4 py-2">
+          <Plus className="h-4 w-4" />
+          Buat Artikel Baru
+        </Button>
+      </div>
+
+      {/* Main Table Card */}
+      <Card className="p-0 overflow-hidden">
+        <CardHeader className="px-6 pt-6 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <CardTitle className="text-base font-semibold text-slate-900">
+              Daftar Artikel & Berita
+            </CardTitle>
+            <CardDescription>
+              Menampilkan seluruh artikel terbit dan draf tulisan.
+            </CardDescription>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <Select
+              value={categoryFilter}
+              onChange={(e) => {
+                setCategoryFilter(e.target.value);
+                setPage(1);
+              }}
+              className="w-40 text-sm h-10"
+            >
+              <option value="ALL">Kategori: Semua</option>
+              <option value="Berita">Berita</option>
+              <option value="Kegiatan">Kegiatan</option>
+            </Select>
+
+            <Select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(1);
+              }}
+              className="w-40 text-sm h-10"
+            >
+              <option value="ALL">Status: Semua</option>
+              <option value="terbit">Terbit</option>
+              <option value="draft">Draft</option>
+            </Select>
+
+            <div className="relative w-full sm:w-72">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Input
+                type="text"
+                placeholder="Cari judul..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+                className="pl-11 text-sm h-11"
+              />
+            </div>
+          </div>
+        </CardHeader>
+
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-slate-50/80">
+                <TableHead className="font-semibold text-slate-700 text-sm">Judul Artikel</TableHead>
+                <TableHead className="font-semibold text-slate-700 text-sm">Kategori</TableHead>
+                <TableHead className="font-semibold text-slate-700 text-sm">Status</TableHead>
+                <TableHead className="font-semibold text-slate-700 text-sm">Tanggal Terbit</TableHead>
+                <TableHead className="font-semibold text-slate-700 text-sm">Dibuat</TableHead>
+                <TableHead className="text-right font-semibold text-slate-700 text-sm pr-6">Aksi (CRUD)</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedArtikels.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="py-10 text-center text-sm text-slate-500">
+                    Tidak ada artikel ditemukan.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                paginatedArtikels.map((item) => (
+                  <TableRow key={item.id} className="hover:bg-slate-50/60 transition">
+                    <TableCell className="max-w-[300px]">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={item.image_path}
+                          alt={item.judul}
+                          className="h-12 w-12 rounded-lg object-cover border border-slate-200 shrink-0"
+                        />
+                        <div className="min-w-0">
+                          <p className="font-medium text-slate-900 text-sm truncate">{item.judul}</p>
+                          <p className="text-sm text-slate-500 font-mono truncate">{item.slug}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={item.kategori === "Berita" ? "accent" : "success"}>
+                        {item.kategori}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={item.status === "terbit" ? "success" : "warning"}>
+                        {item.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-slate-700 font-medium">
+                      {item.tanggal_terbit}
+                    </TableCell>
+                    <TableCell className="text-sm text-slate-500 font-mono">
+                      {item.created_at}
+                    </TableCell>
+                    <TableCell className="text-right pr-6">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <MoreVertical className="h-4 w-4 text-slate-500" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem onClick={() => handleOpenPreview(item)}>
+                            <Eye className="h-3.5 w-3.5" /> Detail Artikel
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleOpenEdit(item)}>
+                            <Edit2 className="h-3.5 w-3.5" /> Edit Artikel
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleOpenDelete(item.id)} className="text-rose-600">
+                            <Trash2 className="h-3.5 w-3.5" /> Hapus
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        <TablePagination
+          totalRows={filteredArtikels.length}
+          selectedRowsCount={0}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+        />
+      </Card>
+
+      {/* Form Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent
+          title={editingItem ? "Edit Artikel" : "Buat Artikel Baru"}
+          description="Formulir pengelolaan konten berita dan kegiatan kelurahan."
+          className="max-w-2xl"
+        >
+          <form onSubmit={handleSave} className="space-y-3 pt-2 max-h-[70vh] overflow-y-auto pr-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">
+                  Judul Artikel
+                </label>
+                <Input
+                  type="text"
+                  required
+                  placeholder="Judul artikel..."
+                  value={formJudul}
+                  onChange={(e) => handleJudulChange(e.target.value)}
+                  className="text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">
+                  Slug (URL)
+                </label>
+                <Input
+                  type="text"
+                  required
+                  placeholder="slug-artikel"
+                  value={formSlug}
+                  onChange={(e) => setFormSlug(e.target.value)}
+                  className="text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">
+                  Kategori
+                </label>
+                <Select
+                  value={formKategori}
+                  onChange={(e) => setFormKategori(e.target.value as "Berita" | "Kegiatan")}
+                  className="text-sm h-11"
+                >
+                  <option value="Berita">Berita</option>
+                  <option value="Kegiatan">Kegiatan</option>
+                </Select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">
+                  Status Publikasi
+                </label>
+                <Select
+                  value={formStatus}
+                  onChange={(e) => setFormStatus(e.target.value as "draft" | "terbit")}
+                  className="text-sm h-11"
+                >
+                  <option value="terbit">Terbit</option>
+                  <option value="draft">Draft</option>
+                </Select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">
+                  Tanggal Terbit
+                </label>
+                <Input
+                  type="date"
+                  value={formTanggalTerbit}
+                  onChange={(e) => setFormTanggalTerbit(e.target.value)}
+                  className="text-sm h-11"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Sampul Foto (Upload ke S3)
+                </label>
+                <input
+                  id="artikel-image"
+                  type="file"
+                  accept="image/*"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-slate-700 hover:file:bg-slate-200"
+                  onChange={(e) => handleImageFileChange(e.target.files?.[0] ?? null)}
+                />
+                <p className="text-sm text-slate-500">
+                  Pilih file gambar untuk langsung menghasilkan referensi bucket S3.
+                </p>
+                <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+                  {formImagePreview || formImagePath ? (
+                    <img
+                      src={formImagePreview || formImagePath}
+                      alt={formJudul || "Pratinjau sampul"}
+                      className="h-48 w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-48 items-center justify-center text-sm text-slate-500">
+                      Pratinjau akan muncul setelah memilih gambar.
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Referensi S3
+                </label>
+                <Input
+                  type="text"
+                  readOnly
+                  value={formImagePath}
+                  className="text-sm"
+                />
+                {formImageName ? (
+                  <p className="text-sm text-slate-500">File dipilih: {formImageName}</p>
+                ) : (
+                  <p className="text-sm text-slate-500">File belum dipilih.</p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1">
+                Ringkasan Artikel
+              </label>
+              <Textarea
+                rows={2}
+                required
+                placeholder="Ringkasan singkat..."
+                value={formRingkasan}
+                onChange={(e) => setFormRingkasan(e.target.value)}
+                className="text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1">
+                Isi Konten Lengkap
+              </label>
+              <Textarea
+                rows={4}
+                required
+                placeholder="Konten lengkap artikel..."
+                value={formKonten}
+                onChange={(e) => setFormKonten(e.target.value)}
+                className="text-sm"
+              />
+            </div>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" size="sm" onClick={() => setIsDialogOpen(false)}>
+                Batal
+              </Button>
+              <Button type="submit" size="sm" className="gap-1.5">
+                <Check className="h-3.5 w-3.5" />
+                {editingItem ? "Simpan Perubahan" : "Publikasikan"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Preview Dialog */}
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent
+          title="Detail Artikel"
+          description={`Slug: ${previewItem?.slug}`}
+          className="max-w-xl"
+        >
+          {previewItem && (
+            <div className="space-y-3 pt-2">
+              <div className="relative h-44 w-full overflow-hidden rounded-md bg-slate-100">
+                <img
+                  src={previewItem.image_path}
+                  alt={previewItem.judul}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant={previewItem.kategori === "Berita" ? "accent" : "success"}>
+                  {previewItem.kategori}
+                </Badge>
+                <Badge variant={previewItem.status === "terbit" ? "success" : "warning"}>
+                  {previewItem.status}
+                </Badge>
+                <span className="text-xs text-slate-500">Terbit: {previewItem.tanggal_terbit}</span>
+              </div>
+              <h2 className="text-lg font-bold text-slate-900">{previewItem.judul}</h2>
+              <div className="bg-slate-50 p-3 rounded-md border border-slate-100 text-xs text-slate-700 leading-relaxed">
+                {previewItem.ringkasan}
+              </div>
+              <p className="text-xs text-slate-800 leading-relaxed">{previewItem.konten}</p>
+              <DialogFooter>
+                <Button variant="outline" size="sm" onClick={() => setIsPreviewOpen(false)}>
+                  Tutup
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent
+          title="Hapus Artikel"
+          description="Apakah Anda yakin ingin menghapus artikel ini?"
+        >
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setIsDeleteDialogOpen(false)}>
+              Batal
+            </Button>
+            <Button variant="destructive" size="sm" onClick={confirmDelete}>
+              Ya, Hapus
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

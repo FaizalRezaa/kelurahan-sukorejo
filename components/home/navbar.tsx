@@ -1,37 +1,66 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [isTransparent, setIsTransparent] = useState(true);
+  const lastScrollY = useRef(0);
 
-  // Deteksi scroll untuk mengubah style navbar
   useEffect(() => {
+    lastScrollY.current = window.scrollY;
+
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      const currentScrollY = window.scrollY;
+      const scrollingDown = currentScrollY > lastScrollY.current;
+
+      if (currentScrollY <= 50) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(scrollingDown);
+      }
+
+      lastScrollY.current = currentScrollY;
     };
-    window.addEventListener("scroll", handleScroll);
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const heroSection = document.getElementById("hero");
+    if (!heroSection) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsTransparent(entry.isIntersecting);
+      },
+      { rootMargin: "-1px 0px 0px 0px", threshold: 0.1 },
+    );
+
+    observer.observe(heroSection);
+    return () => observer.disconnect();
   }, []);
 
   const navLinks = [
     { name: "Beranda", href: "/" },
     { name: "Profil", href: "/#profil" },
     { name: "Layanan", href: "/#layanan" },
-    { name: "Berita", href: "/berita" },
-    { name: "Galeri", href: "/#galeri" },
+    { name: "Artikel", href: "/artikel" },
+    { name: "Galeri", href: "/galeri" },
   ];
 
   return (
     <header
-      // Class py-6 md:py-8 dipindah ke sini agar ukurannya selalu tetap
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b py-6 md:py-8 ${
-        scrolled
-          ? "bg-[#f4f1ea]/95 backdrop-blur-md border-zinc-200/60 shadow-sm"
-          : "bg-[#f4f1ea] border-transparent"
+        isVisible ? "translate-y-0" : "-translate-y-full"
+      } ${
+        isTransparent
+          ? "bg-transparent border-transparent"
+          : "bg-white/95 border-zinc-200/80 shadow-sm"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 flex items-center justify-between">
@@ -41,7 +70,11 @@ export function Navbar() {
             <Link
               key={link.name}
               href={link.href}
-              className="text-base font-semibold text-zinc-600 hover:text-[#2d5e45] transition-colors"
+              className={`text-base font-semibold transition-colors ${
+                isTransparent
+                  ? "text-white"
+                  : "text-zinc-600 hover:text-[#2d5e45]"
+              }`}
             >
               {link.name}
             </Link>
@@ -52,7 +85,11 @@ export function Navbar() {
         <div className="hidden lg:block z-50">
           <Link
             href="/kontak"
-            className="rounded-full bg-[#2d5e45] px-8 py-3.5 text-base font-bold text-white shadow-md hover:bg-[#1e402f] hover:shadow-lg transition-all active:scale-95"
+            className={`rounded-full px-8 py-3.5 text-base font-bold shadow-md transition-all active:scale-95 ${
+              isTransparent
+                ? "bg-white/10 text-white hover:bg-white/20"
+                : "bg-[#2d5e45] text-white hover:bg-[#1e402f] hover:shadow-lg"
+            }`}
           >
             Hubungi Kami
           </Link>

@@ -21,8 +21,7 @@ import {
 export default function Page() {
   return (
     <>
-      {/* Tambahkan pt-24 md:pt-32 di sini agar konten tidak nyundul navbar */}
-      <main className="w-full min-h-screen bg-[#f4f1ea] font-sans pt-24 md:pt-32 space-y-20 md:space-y-28">
+      <main className="w-full min-h-screen bg-[#f4f1ea] font-sans space-y-20 md:space-y-28">
         <Hero heroSlides={heroSlides} />
 
         <ProfileSection profileStatistics={profileStatistics} />
@@ -69,7 +68,7 @@ export default function Page() {
 
             <div className="flex justify-center">
               <Link
-                href="/berita"
+                href="/artikel"
                 className="inline-flex items-center justify-center rounded-full border-2 border-[#2d5e45] bg-transparent px-8 py-3 text-base font-bold text-[#2d5e45] transition-all duration-300 hover:bg-[#2d5e45] hover:text-white active:scale-95 shadow-sm"
               >
                 Lihat Semua Berita & Kegiatan

@@ -22,6 +22,7 @@ export function Hero({ heroSlides }: HeroProps) {
 
   return (
     <section
+      id="hero"
       aria-label="Sambutan Kelurahan Sukorejo"
       className="relative isolate min-h-[660px] overflow-hidden bg-[#102d22] text-white sm:min-h-[720px]"
     >
@@ -47,7 +48,7 @@ export function Hero({ heroSlides }: HeroProps) {
       <div className="absolute inset-0 -z-20 bg-gradient-to-b from-[#061a12]/70 via-[#0c3122]/25 to-[#061a12]/80" />
 
       {/* Hero Content */}
-      <div className="relative z-10 mx-auto flex min-h-[calc(100vh-5rem)] max-w-7xl flex-col items-center justify-center px-5 py-16 text-center sm:px-8">
+      <div className="relative z-10 mx-auto mt-12 flex min-h-[calc(100vh-5rem)] max-w-7xl flex-col items-center justify-center px-5 py-16 text-center sm:px-8">
         <div className="relative h-40 w-40 flex-shrink-0 overflow-hidden rounded-3xl sm:h-48 sm:w-48 md:h-56 md:w-56">
           <Image
             src="/logo-pemkab-blitar.png"
