@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 
 import { Hero } from "../../components/home/hero";
@@ -18,7 +16,22 @@ import {
   galleryItems,
 } from "../../components/home/data";
 
-export default function Page() {
+import { createClient } from "@/lib/supabase/server";
+
+export default async function Page() {
+  const supabase = await createClient();
+
+  const { data: beritaTerbaru, error } = await supabase
+    .from("berita")
+    .select("id, slug, judul, kategori, ringkasan, tanggal_terbit")
+    .eq("status", "terbit")
+    .order("tanggal_terbit", { ascending: false })
+    .limit(3);
+
+  if (error) {
+    console.error("Gagal mengambil data berita:", error.message);
+  }
+
   return (
     <>
       {/* Tambahkan pt-24 md:pt-32 di sini agar konten tidak nyundul navbar */}
