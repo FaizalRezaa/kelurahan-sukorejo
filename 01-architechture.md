@@ -109,7 +109,7 @@ kelurahan-sukorejo/
 profil_statistik   (id, label, value, urutan)
 hero_slides        (id, image_path, alt, urutan, aktif)
 
-berita             (id, slug, judul, kategori['Berita'|'Kegiatan'],
+artikel             (id, slug, judul, kategori['Berita'|'Kegiatan'],
                     ringkasan, konten, image_path, status['draft'|'terbit'],
                     tanggal_terbit, created_at, updated_at)
 
@@ -133,7 +133,7 @@ profiles (admin)   (id -> mereferensi auth.users.id, nama, role, created_at)
 Dibuat secara manual di dashboard Supabase. Semua diatur sebagai **Public Bucket**.
 
 - `hero-images`
-- `berita-images`
+- `artikel-images`
 - `layanan-images`
 - `galeri-images`
 
