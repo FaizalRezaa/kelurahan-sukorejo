@@ -2,12 +2,17 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 
 export function Navbar() {
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
+
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const [isTransparent, setIsTransparent] = useState(true);
+  // Di halaman selain home, navbar selalu solid (tidak transparan)
+  const [isTransparent, setIsTransparent] = useState(isHomePage);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
@@ -31,6 +36,9 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
+    // Hanya jalankan efek transparan di home page
+    if (!isHomePage) return;
+
     const heroSection = document.getElementById("hero");
     if (!heroSection) return;
 
@@ -43,7 +51,7 @@ export function Navbar() {
 
     observer.observe(heroSection);
     return () => observer.disconnect();
-  }, []);
+  }, [isHomePage]);
 
   const navLinks = [
     { name: "Beranda", href: "/" },
@@ -61,7 +69,7 @@ export function Navbar() {
         isTransparent
           ? "bg-transparent border-transparent"
           : "bg-white/95 border-zinc-200/80 shadow-sm"
-      }`}
+      }` }
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 flex items-center justify-between">
         {/* DESKTOP NAVIGATION */}
@@ -71,10 +79,10 @@ export function Navbar() {
               key={link.name}
               href={link.href}
               className={`text-base font-semibold transition-colors ${
-                isTransparent
-                  ? "text-white"
-                  : "text-zinc-600 hover:text-[#2d5e45]"
-              }`}
+                              isTransparent
+                                ? "text-white"
+                                : "text-zinc-600 hover:text-[#2d5e45]"
+                            }` }
             >
               {link.name}
             </Link>
@@ -86,10 +94,10 @@ export function Navbar() {
           <Link
             href="/kontak"
             className={`rounded-full px-8 py-3.5 text-base font-bold shadow-md transition-all active:scale-95 ${
-              isTransparent
-                ? "bg-white/10 text-white hover:bg-white/20"
-                : "bg-[#2d5e45] text-white hover:bg-[#1e402f] hover:shadow-lg"
-            }`}
+                          isTransparent
+                            ? "bg-white/10 text-white hover:bg-white/20"
+                            : "bg-[#2d5e45] text-white hover:bg-[#1e402f] hover:shadow-lg"
+                        }` }
           >
             Hubungi Kami
           </Link>
@@ -98,7 +106,11 @@ export function Navbar() {
         {/* MOBILE MENU BUTTON */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="lg:hidden p-2 -mr-2 rounded-lg text-zinc-900 hover:bg-zinc-200/60 transition-colors z-50 focus:outline-none"
+          className={`lg:hidden p-2 -mr-2 rounded-lg transition-colors z-50 focus:outline-none ${
+                      isTransparent
+              ? "text-white hover:bg-white/20"
+              : "text-zinc-900 hover:bg-zinc-200/60"
+          }`}
           aria-label="Toggle Menu"
         >
           {isOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
