@@ -4,6 +4,7 @@ import { ChevronRight, Calendar, Clock, Tag } from "lucide-react";
 import { fetchArtikelList } from "@/lib/query/fetcher"; // Ambil dari fetcher Supabase
 import type { ArtikelCategory } from "../../../components/artikel/types";
 
+
 export const revalidate = 0; // Agar selalu mengambil data terbaru
 
 const categoryBadge: Record<string, string> = {

@@ -181,14 +181,16 @@ export async function fetchArtikelPublik(params?: {
  * Ambil artikel berdasarkan slug. Bisa dipakai di admin (draft) maupun publik.
  * Untuk halaman publik, pastikan RLS Supabase hanya izinkan 'terbit'.
  */
-export async function fetchArtikelBySlug(slug: string): Promise<Artikel> {
+export async function fetchArtikelBySlug(slug: string): Promise<Artikel | null> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("artikel")
     .select("*")
     .eq("slug", slug)
     .single();
-  return assertNoError(data, error);
+
+  if (error || !data) return null;
+  return data;
 }
 
 /** Ambil satu artikel berdasarkan id (untuk form edit admin). */
