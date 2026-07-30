@@ -8,10 +8,10 @@ export const metadata: Metadata = {
 
 export default function AdminRootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className="h-full antialiased">
-      <body className="min-h-full bg-slate-50 text-slate-900">
+
+      <div className="min-h-full bg-slate-50 text-slate-900">
         {children}
-      </body>
-    </html>
+      </div>
+    
   );
 }

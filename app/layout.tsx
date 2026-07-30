@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Providers from "@/app/providers";
 
 export const metadata: Metadata = {
   title: "Kelurahan Sukorejo",
@@ -14,7 +15,10 @@ export default function RootLayout({
   return (
     <html lang="id" className="antialiased scroll-smooth">
       <body>
-        {children}
+          <Providers>
+            {children}
+            </Providers>
+        
       </body>
     </html>
   );
