@@ -22,9 +22,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const artikel = await fetchArtikelBySlug(slug);
-  
+
   if (!artikel) return { title: "Artikel Tidak Ditemukan" };
-  
+
   return {
     title: `${artikel.judul} | Kelurahan Sukorejo`,
     description: artikel.ringkasan,
@@ -50,10 +50,12 @@ export default async function ArticleSlugPage({
     .slice(0, 3);
 
   // Fallback gambar jika tidak ada image_path
-  const coverImage = artikel.image_path || "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop";
+  const coverImage =
+    artikel.image_path ||
+    "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop";
 
   return (
-    <main className="min-h-screen bg-[#f4f1ea]">
+    <main className="min-h-screen bg-[#f4f1ea] overflow-x-hidden">
       {/* HERO IMAGE */}
       <div className="relative w-full h-[40vh] sm:h-[50vh] md:h-[55vh] overflow-hidden bg-zinc-900">
         <Image
@@ -83,12 +85,14 @@ export default async function ArticleSlugPage({
         <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-6 md:px-10 pb-8">
           <div className="max-w-4xl mx-auto">
             <span
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-4 ${categoryBadge[artikel.kategori] || "bg-zinc-200 text-zinc-800"}`}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-4 ${
+                categoryBadge[artikel.kategori] || "bg-zinc-200 text-zinc-800"
+              }`}
             >
               <Tag className="w-3 h-3" />
               {artikel.kategori}
             </span>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight max-w-3xl">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight max-w-3xl break-words">
               {artikel.judul}
             </h1>
           </div>
@@ -96,7 +100,7 @@ export default async function ArticleSlugPage({
       </div>
 
       {/* CONTENT */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-10 py-10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-10 py-10 w-full overflow-hidden">
         {/* Meta Bar */}
         <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-500 mb-8 pb-6 border-b border-zinc-200">
           <span className="flex items-center gap-1.5">
@@ -108,20 +112,22 @@ export default async function ArticleSlugPage({
         </div>
 
         {/* Summary */}
-        <p className="text-base sm:text-lg text-zinc-600 leading-relaxed mb-8 font-medium border-l-4 border-[#2d5e45] pl-5 italic">
+        <p className="text-base sm:text-lg text-zinc-600 leading-relaxed mb-8 font-medium border-l-4 border-[#2d5e45] pl-5 italic break-words">
           {artikel.ringkasan}
         </p>
 
         {/* Article Body */}
         <div
-          className="prose-artikel text-zinc-700 leading-relaxed space-y-4"
+          className="prose-artikel text-zinc-700 leading-relaxed space-y-4 break-words [overflow-wrap:anywhere] [&_img]:max-w-full [&_img]:h-auto [&_iframe]:max-w-full [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto"
           dangerouslySetInnerHTML={{ __html: artikel.konten }}
         />
 
         {/* Tags & Share */}
         <div className="mt-12 pt-8 border-t border-zinc-200 flex flex-wrap items-center justify-between gap-4">
           <span
-            className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold ${categoryBadge[artikel.kategori] || "bg-zinc-200 text-zinc-800"}`}
+            className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold ${
+              categoryBadge[artikel.kategori] || "bg-zinc-200 text-zinc-800"
+            }`}
           >
             <Tag className="w-3.5 h-3.5" />
             {artikel.kategori}
@@ -135,8 +141,6 @@ export default async function ArticleSlugPage({
           </Link>
         </div>
       </div>
-
-      
     </main>
   );
 }
