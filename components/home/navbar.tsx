@@ -11,10 +11,10 @@ export function Navbar() {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  // Di halaman selain home, navbar selalu solid (tidak transparan)
   const [isTransparent, setIsTransparent] = useState(isHomePage);
   const lastScrollY = useRef(0);
 
+  // Efek untuk menyembunyikan/menampilkan navbar saat scroll
   useEffect(() => {
     lastScrollY.current = window.scrollY;
 
@@ -25,7 +25,7 @@ export function Navbar() {
       if (currentScrollY <= 50) {
         setIsVisible(true);
       } else {
-        setIsVisible(scrollingDown);
+        setIsVisible(!scrollingDown);
       }
 
       lastScrollY.current = currentScrollY;
@@ -35,9 +35,16 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Efek untuk mengatur transparansi berdasarkan halaman dan hero section
   useEffect(() => {
-    // Hanya jalankan efek transparan di home page
-    if (!isHomePage) return;
+    // 1. Jika BUKAN di halaman home, paksa navbar menjadi solid (tidak transparan)
+    if (!isHomePage) {
+      setIsTransparent(false);
+      return;
+    }
+
+    // 2. Jika di halaman home, kembalikan state awal ke transparan
+    setIsTransparent(true);
 
     const heroSection = document.getElementById("hero");
     if (!heroSection) return;
@@ -51,7 +58,7 @@ export function Navbar() {
 
     observer.observe(heroSection);
     return () => observer.disconnect();
-  }, [isHomePage]);
+  }, [isHomePage]); // Dependensi ini memastikan efek berjalan setiap rute berubah
 
   const navLinks = [
     { name: "Beranda", href: "/" },
@@ -69,7 +76,7 @@ export function Navbar() {
         isTransparent
           ? "bg-transparent border-transparent"
           : "bg-white/95 border-zinc-200/80 shadow-sm"
-      }` }
+      }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 flex items-center justify-between">
         {/* DESKTOP NAVIGATION */}
@@ -79,10 +86,10 @@ export function Navbar() {
               key={link.name}
               href={link.href}
               className={`text-base font-semibold transition-colors ${
-                              isTransparent
-                                ? "text-white"
-                                : "text-zinc-600 hover:text-[#2d5e45]"
-                            }` }
+                isTransparent
+                  ? "text-white hover:text-gray-200"
+                  : "text-zinc-600 hover:text-[#2d5e45]"
+              }`}
             >
               {link.name}
             </Link>
@@ -94,10 +101,10 @@ export function Navbar() {
           <Link
             href="/kontak"
             className={`rounded-full px-8 py-3.5 text-base font-bold shadow-md transition-all active:scale-95 ${
-                          isTransparent
-                            ? "bg-white/10 text-white hover:bg-white/20"
-                            : "bg-[#2d5e45] text-white hover:bg-[#1e402f] hover:shadow-lg"
-                        }` }
+              isTransparent
+                ? "bg-white/10 text-white hover:bg-white/20"
+                : "bg-[#2d5e45] text-white hover:bg-[#1e402f] hover:shadow-lg"
+            }`}
           >
             Hubungi Kami
           </Link>
@@ -107,7 +114,7 @@ export function Navbar() {
         <button
           onClick={() => setIsOpen(!isOpen)}
           className={`lg:hidden p-2 -mr-2 rounded-lg transition-colors z-50 focus:outline-none ${
-                      isTransparent
+            isTransparent && !isOpen
               ? "text-white hover:bg-white/20"
               : "text-zinc-900 hover:bg-zinc-200/60"
           }`}
