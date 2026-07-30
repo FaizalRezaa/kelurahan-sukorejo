@@ -2,12 +2,12 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
 export async function middleware(request: NextRequest) {
-  // 1. Siapkan response awal
+  // 1. Siapkan response awal yang meneruskan request
   let supabaseResponse = NextResponse.next({
     request,
   })
 
-  // 2. Inisialisasi Supabase Server Client khusus untuk Middleware
+  // 2. Inisialisasi Supabase Server Client untuk Middleware
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -17,10 +17,10 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
-            request,
-          })
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          )
+          supabaseResponse = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
           )
@@ -29,36 +29,33 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // 3. Ambil data sesi (session) pengguna saat ini
+  // 3. Gunakan getUser() — validasi ke server Supabase, lebih aman dari getSession()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // 4. ATURAN PROTEKSI
-  // Jika user mencoba mengakses area /admin tapi belum login -> lempar ke /login
-  if (request.nextUrl.pathname.startsWith('/admin') && !user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
+  const { pathname } = request.nextUrl
+
+  // 4. Belum login + akses /admin/* → redirect ke /login
+  if (pathname.startsWith('/admin') && !user) {
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.pathname = '/login'
+    return NextResponse.redirect(redirectUrl)
   }
 
-  // Jika user sudah login (punya sesi valid) tapi mencoba buka halaman login -> lempar ke /admin
-  if (request.nextUrl.pathname.startsWith('/login') && user) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/admin'
-      return NextResponse.redirect(url)
+  // 5. Sudah login + akses /login → redirect ke /admin
+  if (pathname.startsWith('/login') && user) {
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.pathname = '/admin'
+    return NextResponse.redirect(redirectUrl)
   }
 
+  // 6. Kembalikan supabaseResponse agar cookie yang di-refresh ikut dikirim
   return supabaseResponse
 }
 
-// 5. Tentukan path mana saja yang akan dicegat oleh Middleware ini
 export const config = {
   matcher: [
-    /*
-     * Mencegat semua request KECUALI file statis, gambar, dan aset Next.js
-     * agar performa halaman publik tidak melambat.
-     */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

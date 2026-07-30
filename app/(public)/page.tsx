@@ -9,28 +9,104 @@ import { GalleryCard } from "../../components/home/gallery-card";
 
 import {
   heroSlides,
-  profileStatistics,
+  profileStatistics as profileStatisticsStatic,
   resourceItems,
   bannerItems,
-  newsItems,
+  newsItems as newsItemsStatic,
   galleryItems,
 } from "../../components/home/data";
 
 import { createClient } from "@/lib/supabase/server";
+import type { NewsItem, ProfileStatistic } from "../../components/home/types";
+
+// ─── Type untuk baris dari tabel `artikel` ───────────────────────────────────
+type ArtikelRow = {
+  id: string;
+  slug: string;
+  judul: string;
+  kategori: string;
+  ringkasan: string | null;
+  gambar_url: string | null;
+  tanggal_terbit: string | null;
+};
+
+// ─── Type untuk baris dari tabel `profil_statistik` ──────────────────────────
+type ProfilStatistikRow = {
+  id: string;
+  label: string;
+  nilai: string;
+  urutan: number | null;
+};
+
+// ─── Helper: format tanggal ISO → "23 JULI 2026" ─────────────────────────────
+function formatTanggal(iso: string | null): string {
+  if (!iso) return "";
+  return new Date(iso).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).toUpperCase();
+}
+
+// ─── Helper: normalisasi kategori ke union type NewsItem ─────────────────────
+function normalizeKategori(raw: string): NewsItem["category"] {
+  const lower = raw.toLowerCase();
+  if (lower === "kegiatan") return "Kegiatan";
+  return "Berita"; // default: Berita, Pengumuman, dll → "Berita"
+}
 
 export default async function Page() {
   const supabase = await createClient();
 
-  const { data: beritaTerbaru, error } = await supabase
-    .from("berita")
-    .select("id, slug, judul, kategori, ringkasan, tanggal_terbit")
+  // ── Fetch artikel terbaru (tabel: artikel, bukan berita) ──────────────────
+  const { data: artikelRows, error: artikelError } = await supabase
+    .from("artikel")
+    .select("id, slug, judul, kategori, ringkasan, gambar_url, tanggal_terbit")
     .eq("status", "terbit")
     .order("tanggal_terbit", { ascending: false })
-    .limit(3);
+    .limit(6);
 
-  if (error) {
-    console.error("Gagal mengambil data berita:", error.message);
+  if (artikelError) {
+    console.error("Gagal mengambil data artikel:", artikelError.message);
   }
+
+  // ── Fetch profil statistik ────────────────────────────────────────────────
+  const { data: statistikRows, error: statistikError } = await supabase
+    .from("profil_statistik")
+    .select("id, label, nilai, urutan")
+    .order("urutan", { ascending: true });
+
+  if (statistikError) {
+    console.error(
+      "Gagal mengambil data profil_statistik:",
+      statistikError.message
+    );
+  }
+
+  // ── Map artikel rows → NewsItem[] (fallback ke data statis jika kosong) ───
+  const newsItems: NewsItem[] =
+    artikelRows && artikelRows.length > 0
+      ? (artikelRows as ArtikelRow[]).map((row) => ({
+          id: row.id,
+          date: formatTanggal(row.tanggal_terbit),
+          category: normalizeKategori(row.kategori),
+          title: row.judul,
+          summary: row.ringkasan ?? "",
+          image:
+            row.gambar_url ??
+            "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop",
+          href: `/artikel/${row.slug}`,
+        }))
+      : newsItemsStatic;
+
+  // ── Map statistik rows → ProfileStatistic[] (fallback ke data statis) ─────
+  const profileStatistics: ProfileStatistic[] =
+    statistikRows && statistikRows.length > 0
+      ? (statistikRows as ProfilStatistikRow[]).map((row) => ({
+          value: row.nilai,
+          label: row.label,
+        }))
+      : profileStatisticsStatic;
 
   return (
     <>
