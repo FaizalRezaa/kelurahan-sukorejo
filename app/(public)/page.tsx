@@ -10,11 +10,10 @@ import { GalleryCard } from "../../components/home/gallery-card";
 import {
   heroSlides as heroSlidesStatic,
   profileStatistics as profileStatisticsStatic,
-  resourceItems,
-  bannerItems,
+  resourceItems as resourceItemsStatic, // Ubah nama biar jelas ini statis
+  bannerItems as bannerItemsStatic,       // Ubah nama biar jelas ini statis
   newsItems as newsItemsStatic,
   galleryItems as galleryItemsStatic,
-  heroSlides, // Ubah nama import agar tidak bentrok
 } from "../../components/home/data";
 
 import { createClient } from "@/lib/supabase/server";
@@ -54,6 +53,26 @@ type HeroSlideShow = {
   urutan: number;
 };
 
+// ─── Type untuk baris dari tabel `layanan_publik` ────────────────────────────
+type LayananPublikRow = {
+  id: string;
+  urutan: number;
+  judul: string;
+  deskripsi: string;
+  image_path: string | null;
+  href: string;
+};
+
+// ─── Type untuk baris dari tabel `banner_items` ──────────────────────────────
+type BannerItemRow = {
+  id: string;
+  urutan: number;
+  judul: string;
+  button_text: string;
+  image_path: string | null;
+  href: string;
+};
+
 // ─── Helper: format tanggal ISO → "23 JULI 2026" ─────────────────────────────
 function formatTanggal(iso: string | null): string {
   if (!iso) return "";
@@ -68,13 +87,13 @@ function formatTanggal(iso: string | null): string {
 function normalizeKategori(raw: string): NewsItem["category"] {
   const lower = raw.toLowerCase();
   if (lower === "kegiatan") return "Kegiatan";
-  return "Berita"; // default: Berita, Pengumuman, dll → "Berita"
+  return "Berita";
 }
 
 export default async function Page() {
   const supabase = await createClient();
 
-  // ── Fetch artikel terbaru (tabel: artikel, bukan berita) ──────────────────
+  // ── Fetch artikel terbaru ──────────────────────────────────────────────────
   const { data: artikelRows, error: artikelError } = await supabase
     .from("artikel")
     .select("id, slug, judul, kategori, ringkasan, image_path, tanggal_terbit")
@@ -93,10 +112,7 @@ export default async function Page() {
     .order("urutan", { ascending: true });
 
   if (statistikError) {
-    console.error(
-      "Gagal mengambil data profil_statistik:",
-      statistikError.message
-    );
+    console.error("Gagal mengambil data profil_statistik:", statistikError.message);
   }
 
   // ── Fetch galeri foto ──────────────────────────────────────────────────────
@@ -104,7 +120,7 @@ export default async function Page() {
     .from("galeri")
     .select("id, image_path, alt, urutan")
     .order("urutan", { ascending: true })
-    .limit(6); // Menampilkan maksimal 6 foto terbaru di homepage
+    .limit(6);
 
   if (galeriError) {
     console.error("Gagal mengambil data galeri:", galeriError.message);
@@ -112,7 +128,7 @@ export default async function Page() {
 
   // ── Fetch Hero Banner ──────────────────────────────────────────────────────
   const { data: heroRows, error: heroError } = await supabase
-    .from("hero_slides") // <--- Ganti dengan nama tabel banner-mu di Supabase
+    .from("hero_slides")
     .select("*")
     .order("urutan", { ascending: true });
 
@@ -120,8 +136,29 @@ export default async function Page() {
     console.error("Gagal mengambil data hero banner:", heroError.message);
   }
 
-  // ── Map hero rows (fallback ke data statis jika kosong) ────────────────────
-  const mappedHeroSlides = 
+  // ── Fetch Layanan Publik (6 Kotak) ─────────────────────────────────────────
+  const { data: layananRows, error: layananError } = await supabase
+    .from("layanan_publik")
+    .select("*")
+    .order("urutan", { ascending: true });
+
+  if (layananError) {
+    console.error("Gagal mengambil data layanan publik:", layananError.message);
+  }
+
+  // ── Fetch Banner CTA (2 Banner) ────────────────────────────────────────────
+  const { data: bannerRows, error: bannerError } = await supabase
+    .from("banner_items")
+    .select("*")
+    .order("urutan", { ascending: true });
+
+  if (bannerError) {
+    console.error("Gagal mengambil data banner items:", bannerError.message);
+  }
+
+  // ── Mapping Data dari Database (dengan fallback ke statis) ────────────────
+
+  const mappedHeroSlides =
     heroRows && heroRows.length > 0
       ? (heroRows as HeroSlideShow[]).map((row) => ({
           id: row.id,
@@ -131,7 +168,6 @@ export default async function Page() {
         }))
       : heroSlidesStatic;
 
-  // ── Map artikel rows → NewsItem[] (fallback ke data statis jika kosong) ───
   const newsItems: NewsItem[] =
     artikelRows && artikelRows.length > 0
       ? (artikelRows as ArtikelRow[]).map((row) => ({
@@ -147,7 +183,6 @@ export default async function Page() {
         }))
       : newsItemsStatic;
 
-  // ── Map statistik rows → ProfileStatistic[] (fallback ke data statis) ─────
   const profileStatistics: ProfileStatistic[] =
     statistikRows && statistikRows.length > 0
       ? (statistikRows as ProfilStatistikRow[]).map((row) => ({
@@ -156,18 +191,43 @@ export default async function Page() {
         }))
       : profileStatisticsStatic;
 
-  // ── Map galeri rows (fallback ke data statis) ──────────────────────────────
-  const mappedGalleryItems = 
+  const mappedGalleryItems =
     galeriRows && galeriRows.length > 0
       ? (galeriRows as GaleriRow[]).map((row) => ({
           id: row.id,
           image: row.image_path,
           alt: row.alt,
-          caption: row.alt, // Memakai 'alt' sebagai caption bawaan
+          caption: row.alt,
           category: "Dokumentasi",
           className: "",
         }))
       : galleryItemsStatic;
+
+  // Map Layanan Publik
+  const mappedResourceItems =
+    layananRows && layananRows.length > 0
+      ? (layananRows as LayananPublikRow[]).map((row) => ({
+          title: row.judul,
+          description: row.deskripsi,
+          icon: "FileText" as const,
+          href: row.href,
+          // Berikan fallback gambar default jika image_path kosong atau null
+          image: row.image_path && row.image_path.trim() !== "" 
+            ? row.image_path 
+            : "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop",
+        }))
+      : resourceItemsStatic;
+
+  // Map Banner CTA
+  const mappedBannerItems =
+    bannerRows && bannerRows.length > 0
+      ? (bannerRows as BannerItemRow[]).map((row) => ({
+          title: row.judul,
+          buttonText: row.button_text,
+          image: row.image_path ?? "",
+          href: row.href,
+        }))
+      : bannerItemsStatic;
 
   return (
     <>
@@ -176,22 +236,22 @@ export default async function Page() {
 
         <ProfileSection profileStatistics={profileStatistics} />
 
-        {/* SECTION 1: RESOURCE GRID */}
+        {/* SECTION 1: RESOURCE GRID (Layanan Publik dari Database) */}
         <section
           id="layanan"
           className="px-3 sm:px-6 md:px-10 max-w-6xl mx-auto"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0.75 overflow-hidden rounded-lg shadow-sm">
-            {resourceItems.map((item) => (
-              <ResourceCard key={item.title} {...item} />
+            {mappedResourceItems.map((item, index) => (
+              <ResourceCard key={index} {...item} />
             ))}
           </div>
         </section>
 
-        {/* SECTION 2: BANNER CALL-TO-ACTION (FULL WIDTH) */}
+        {/* SECTION 2: BANNER CALL-TO-ACTION (Dari Database) */}
         <section className="w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 w-full">
-            {bannerItems.map((item, index) => (
+            {mappedBannerItems.map((item, index) => (
               <BannerCard key={index} {...item} />
             ))}
           </div>
@@ -205,8 +265,7 @@ export default async function Page() {
                 Berita & Kegiatan Terbaru
               </h2>
               <p className="text-sm sm:text-base text-zinc-600 font-medium max-w-xl mx-auto mb-4">
-                Informasi terkini tentang kegiatan dan program pemerintah
-                kelurahan
+                Informasi terkini tentang kegiatan dan program pemerintah kelurahan
               </p>
             </div>
 

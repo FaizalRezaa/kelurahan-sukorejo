@@ -33,6 +33,7 @@ import type {
   ProfilStatistik,
   ProfilStatistikUpdate,
 } from "./schema";
+import { supabase } from "../supabase";
 
 // ---------------------------------------------------------------------------
 // Helper: throw on Supabase error
@@ -388,26 +389,26 @@ export async function deleteArtikelWithImage(artikel: Artikel): Promise<void> {
 // ---------------------------------------------------------------------------
 
 export async function fetchLayananPublik(): Promise<LayananPublik[]> {
-  const supabase = createClient();
   const { data, error } = await supabase
     .from("layanan_publik")
     .select("*")
     .order("urutan", { ascending: true });
-  return assertNoError(data, error);
+
+  if (error) throw new Error(error.message);
+  return data || [];
 }
 
-export async function updateLayananPublik(
-  payload: LayananPublikUpdate
-): Promise<LayananPublik> {
-  const supabase = createClient();
-  const { id, ...rest } = payload;
+export async function updateLayananPublik(payload: LayananPublikUpdate) {
+  const { id, ...updates } = payload;
   const { data, error } = await supabase
     .from("layanan_publik")
-    .update(rest)
+    .update(updates)
     .eq("id", id)
     .select()
     .single();
-  return assertNoError(data, error);
+
+  if (error) throw new Error(error.message);
+  return data;
 }
 
 export async function insertLayananPublik(
@@ -433,24 +434,26 @@ export async function deleteLayananPublik(id: string): Promise<void> {
 // ---------------------------------------------------------------------------
 
 export async function fetchBannerItems(): Promise<BannerItem[]> {
-  const supabase = createClient();
   const { data, error } = await supabase
     .from("banner_items")
     .select("*")
     .order("urutan", { ascending: true });
-  return assertNoError(data, error);
+
+  if (error) throw new Error(error.message);
+  return data || [];
 }
 
-export async function updateBannerItem(payload: BannerItemUpdate): Promise<BannerItem> {
-  const supabase = createClient();
-  const { id, ...rest } = payload;
+export async function updateBannerItem(payload: BannerItemUpdate) {
+  const { id, ...updates } = payload;
   const { data, error } = await supabase
     .from("banner_items")
-    .update(rest)
+    .update(updates)
     .eq("id", id)
     .select()
     .single();
-  return assertNoError(data, error);
+
+  if (error) throw new Error(error.message);
+  return data;
 }
 
 export async function insertBannerItem(payload: BannerItemInsert): Promise<BannerItem> {

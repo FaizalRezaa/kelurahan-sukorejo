@@ -262,7 +262,7 @@ export default function HeroSlidesPage() {
               label="Gambar Banner Hero"
               bucket="hero-images"
               value={formImagePath}
-              onChange={(url, file) => { setFormImagePath(url); if (file) setFormImageFile(file); }}
+              onChange={setFormImagePath}
               required={!editingSlide}
               previewAlt={formAlt || "Banner hero"}
               previewClassName="h-32"
