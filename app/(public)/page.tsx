@@ -13,7 +13,7 @@ import {
   resourceItems,
   bannerItems,
   newsItems as newsItemsStatic,
-  galleryItems,
+  galleryItems as galleryItemsStatic, // Ubah nama import agar tidak bentrok
 } from "../../components/home/data";
 
 import { createClient } from "@/lib/supabase/server";
@@ -36,6 +36,14 @@ type ProfilStatistikRow = {
   label: string;
   value: string;
   urutan: number | null;
+};
+
+// ─── Type untuk baris dari tabel `galeri` ────────────────────────────────────
+type GaleriRow = {
+  id: string;
+  image_path: string;
+  alt: string;
+  urutan: number;
 };
 
 // ─── Helper: format tanggal ISO → "23 JULI 2026" ─────────────────────────────
@@ -83,6 +91,17 @@ export default async function Page() {
     );
   }
 
+  // ── Fetch galeri foto ──────────────────────────────────────────────────────
+  const { data: galeriRows, error: galeriError } = await supabase
+    .from("galeri")
+    .select("id, image_path, alt, urutan")
+    .order("urutan", { ascending: true })
+    .limit(6); // Menampilkan maksimal 6 foto terbaru di homepage
+
+  if (galeriError) {
+    console.error("Gagal mengambil data galeri:", galeriError.message);
+  }
+
   // ── Map artikel rows → NewsItem[] (fallback ke data statis jika kosong) ───
   const newsItems: NewsItem[] =
     artikelRows && artikelRows.length > 0
@@ -107,6 +126,19 @@ export default async function Page() {
           label: row.label,
         }))
       : profileStatisticsStatic;
+
+  // ── Map galeri rows (fallback ke data statis) ──────────────────────────────
+  const mappedGalleryItems = 
+    galeriRows && galeriRows.length > 0
+      ? (galeriRows as GaleriRow[]).map((row) => ({
+          id: row.id,
+          image: row.image_path,
+          alt: row.alt,
+          caption: row.alt, // Memakai 'alt' sebagai caption bawaan
+          category: "Dokumentasi",
+          className: "",
+        }))
+      : galleryItemsStatic;
 
   return (
     <>
@@ -184,7 +216,7 @@ export default async function Page() {
             </div>
 
             <div className="grid auto-rows-auto grid-cols-2 gap-1.5 sm:gap-2 md:grid-cols-6 md:grid-flow-dense md:auto-rows-36 lg:auto-rows-44">
-              {galleryItems.map((item) => (
+              {mappedGalleryItems.map((item) => (
                 <GalleryCard key={item.id} item={item} />
               ))}
             </div>

@@ -100,11 +100,11 @@ export function Footer() {
               href="mailto:kelurahan.sukorejo@blitar.go.id"
               className="block break-words transition hover:text-[#f6e2a9]"
             >
-              kelurahan.sukorejo@blitar.go.id
+              kelsukorejo.sutojayan@gmail.com
             </a>
           </div>
           <a
-            href="https://www.instagram.com/"
+            href="https://www.instagram.com/kelsukorejo.sutojayan"
             target="_blank"
             rel="noreferrer"
             aria-label="Instagram Kelurahan Sukorejo"
