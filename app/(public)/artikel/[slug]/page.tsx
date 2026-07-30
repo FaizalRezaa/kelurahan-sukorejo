@@ -136,49 +136,7 @@ export default async function ArticleSlugPage({
         </div>
       </div>
 
-      {/* RELATED ARTICLES */}
-      {related.length > 0 && (
-        <section className="bg-white border-t border-zinc-200 py-14">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-10">
-            <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#2d5e45] mb-2">
-              Baca Juga
-            </p>
-            <h2 className="text-2xl font-bold text-zinc-900 mb-8">
-              Artikel Terkait
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {related.map((rel) => (
-                <Link
-                  key={rel.id}
-                  href={`/artikel/${rel.slug}`}
-                  className="group flex flex-col rounded-xl overflow-hidden border border-zinc-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
-                >
-                  <div className="relative w-full h-40 overflow-hidden bg-zinc-100">
-                    <Image
-                      src={rel.image_path || "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop"}
-                      alt={rel.judul}
-                      fill
-                      sizes="(max-width: 640px) 100vw, 33vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                  <div className="p-4 flex flex-col gap-2 flex-1">
-                    <span
-                      className={`self-start text-[10px] font-bold px-2.5 py-0.5 rounded-full ${categoryBadge[rel.kategori] || "bg-zinc-200 text-zinc-800"}`}
-                    >
-                      {rel.kategori}
-                    </span>
-                    <h3 className="text-sm font-bold text-zinc-900 leading-snug group-hover:text-[#2d5e45] transition-colors line-clamp-2">
-                      {rel.judul}
-                    </h3>
-                    <p className="text-xs text-zinc-400 mt-auto">{rel.tanggal_terbit || "-"}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      
     </main>
   );
 }
