@@ -114,7 +114,7 @@ export default function ArtikelPage() {
     isError,
     error,
   } = useQuery({
-    queryKey: queryKeys.artikel.list(),
+    queryKey: ["artikel-list"],
     queryFn: () => fetchArtikelList(),
   });
 
@@ -123,7 +123,7 @@ export default function ArtikelPage() {
     mutationFn: (payload: ArtikelInsertFormPayload) =>
       insertArtikelWithImage(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.artikel.all() });
+      queryClient.invalidateQueries({ queryKey: ["artikel-list"] });
       setIsDialogOpen(false);
     },
   });
@@ -133,7 +133,7 @@ export default function ArtikelPage() {
     mutationFn: (payload: ArtikelUpdateFormPayload) =>
       updateArtikelWithImage(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.artikel.all() });
+      queryClient.invalidateQueries({ queryKey: ["artikel-list"] });
       setIsDialogOpen(false);
     },
   });
@@ -142,7 +142,7 @@ export default function ArtikelPage() {
   const deleteMutation = useMutation({
     mutationFn: (artikel: Artikel) => deleteArtikelWithImage(artikel),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.artikel.all() });
+      queryClient.invalidateQueries({ queryKey: ["artikel-list"] });
       setIsDeleteDialogOpen(false);
       setDeletingItem(null);
     },
@@ -198,7 +198,7 @@ export default function ArtikelPage() {
     setFormKategori(item.kategori as Kategori);
     setFormRingkasan(item.ringkasan);
     setFormKonten(item.konten ?? "");
-    setFormImagePath(item.image_path ?? "");
+    setFormImagePath(item.image_path || "");
     setFormStatus(item.status);
     setFormTanggalTerbit(
       item.tanggal_terbit
@@ -214,38 +214,44 @@ export default function ArtikelPage() {
   };
 
   const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formJudul.trim()) return;
+  e.preventDefault();
+  if (!formJudul.trim()) return;
 
-    const tanggal_terbit =
-      formStatus === "terbit" ? formTanggalTerbit || null : null;
+  const tanggal_terbit =
+    formStatus === "terbit" ? formTanggalTerbit || null : null;
 
-    if (editingItem) {
-      const payload: ArtikelUpdateFormPayload = {
-        id: editingItem.id,
-        judul: formJudul,
-        slug: formSlug || slugify(formJudul),
-        kategori: formKategori,
-        ringkasan: formRingkasan,
-        konten: formKonten,
-        status: formStatus,
-        tanggal_terbit,
-        currentImagePath: editingItem.image_path,
-      };
-      updateMutation.mutate(payload);
-    } else {
-      const payload: ArtikelInsertFormPayload = {
-        judul: formJudul,
-        slug: formSlug || slugify(formJudul),
-        kategori: formKategori,
-        ringkasan: formRingkasan,
-        konten: formKonten,
-        status: formStatus,
-        tanggal_terbit,
-      };
-      insertMutation.mutate(payload);
-    }
-  };
+  // Tangkap file fisik mentah langsung dari input type="file" di DOM
+  const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+  const imageFile = fileInput?.files?.[0] ?? null;
+
+  if (editingItem) {
+    const payload = {
+      id: editingItem.id,
+      judul: formJudul,
+      slug: formSlug || slugify(formJudul),
+      kategori: formKategori,
+      ringkasan: formRingkasan,
+      konten: formKonten,
+      status: formStatus,
+      tanggal_terbit,
+      imageFile: imageFile, // <-- Kirim File ke fetcher untuk di-upload
+      currentImagePath: editingItem.image_path,
+    };
+    updateMutation.mutate(payload);
+  } else {
+    const payload = {
+      judul: formJudul,
+      slug: formSlug || slugify(formJudul),
+      kategori: formKategori,
+      ringkasan: formRingkasan,
+      konten: formKonten,
+      status: formStatus,
+      tanggal_terbit,
+      imageFile: imageFile, // <-- Kirim File ke fetcher untuk di-upload
+    };
+    insertMutation.mutate(payload);
+  }
+};
 
   const handleOpenDelete = (item: Artikel) => {
     setDeletingItem(item);

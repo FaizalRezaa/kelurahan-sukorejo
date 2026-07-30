@@ -305,7 +305,7 @@ export async function insertArtikelWithImage(
   payload: ArtikelInsertFormPayload
 ): Promise<Artikel> {
   const { imageFile, ...dbPayload } = payload;
-  const BUCKET: StorageBucket = "artikel";
+  const BUCKET = "berita-images" as any;
 
   let image_path: string | null = null;
   if (imageFile) {
@@ -335,7 +335,7 @@ export async function updateArtikelWithImage(
   payload: ArtikelUpdateFormPayload
 ): Promise<Artikel> {
   const { imageFile, currentImagePath, ...dbPayload } = payload;
-  const BUCKET: StorageBucket = "artikel";
+  const BUCKET= "berita-images" as any;
 
   let image_path: string | null | undefined = undefined; // undefined = tidak berubah
 
@@ -367,7 +367,7 @@ export async function updateArtikelWithImage(
  * Gunakan fungsi ini di admin untuk clean delete.
  */
 export async function deleteArtikelWithImage(artikel: Artikel): Promise<void> {
-  const BUCKET: StorageBucket = "artikel";
+  const BUCKET = "berita-images" as any;
 
   if (artikel.image_path) {
     try {
@@ -541,7 +541,7 @@ export async function insertGaleriWithImage(
   payload: GaleriInsertFormPayload
 ): Promise<Galeri> {
   const { imageFile, ...dbPayload } = payload;
-  const BUCKET: StorageBucket = "galeri";
+  const BUCKET = "galeri-images" as any;
 
   const storagePath = buildStoragePath("photos", imageFile);
   const image_path = await uploadFile(BUCKET, storagePath, imageFile);
@@ -564,7 +564,7 @@ export async function updateGaleriWithImage(
   payload: GaleriUpdateFormPayload
 ): Promise<Galeri> {
   const { imageFile, currentImagePath, ...dbPayload } = payload;
-  const BUCKET: StorageBucket = "galeri";
+  const BUCKET = "galeri-images" as any;
 
   let image_path: string | undefined = undefined;
 
@@ -594,7 +594,7 @@ export async function updateGaleriWithImage(
  * Gunakan di admin untuk clean delete.
  */
 export async function deleteGaleriWithImage(galeri: Galeri): Promise<void> {
-  const BUCKET: StorageBucket = "galeri";
+  const BUCKET = "galeri-images" as any;
 
   if (galeri.image_path) {
     try {
