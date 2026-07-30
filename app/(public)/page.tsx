@@ -8,12 +8,13 @@ import { NewsCard } from "../../components/home/news-card";
 import { GalleryCard } from "../../components/home/gallery-card";
 
 import {
-  heroSlides,
+  heroSlides as heroSlidesStatic,
   profileStatistics as profileStatisticsStatic,
   resourceItems,
   bannerItems,
   newsItems as newsItemsStatic,
-  galleryItems as galleryItemsStatic, // Ubah nama import agar tidak bentrok
+  galleryItems as galleryItemsStatic,
+  heroSlides, // Ubah nama import agar tidak bentrok
 } from "../../components/home/data";
 
 import { createClient } from "@/lib/supabase/server";
@@ -43,6 +44,13 @@ type GaleriRow = {
   id: string;
   image_path: string;
   alt: string;
+  urutan: number;
+};
+
+type HeroSlideShow = {
+  id: string;
+  image_path: string;
+  title: string;
   urutan: number;
 };
 
@@ -102,6 +110,27 @@ export default async function Page() {
     console.error("Gagal mengambil data galeri:", galeriError.message);
   }
 
+  // ── Fetch Hero Banner ──────────────────────────────────────────────────────
+  const { data: heroRows, error: heroError } = await supabase
+    .from("hero_slides") // <--- Ganti dengan nama tabel banner-mu di Supabase
+    .select("*")
+    .order("urutan", { ascending: true });
+
+  if (heroError) {
+    console.error("Gagal mengambil data hero banner:", heroError.message);
+  }
+
+  // ── Map hero rows (fallback ke data statis jika kosong) ────────────────────
+  const mappedHeroSlides = 
+    heroRows && heroRows.length > 0
+      ? (heroRows as HeroSlideShow[]).map((row) => ({
+          id: row.id,
+          image: row.image_path,
+          alt: row.title,
+          urutan: row.urutan,
+        }))
+      : heroSlidesStatic;
+
   // ── Map artikel rows → NewsItem[] (fallback ke data statis jika kosong) ───
   const newsItems: NewsItem[] =
     artikelRows && artikelRows.length > 0
@@ -143,7 +172,7 @@ export default async function Page() {
   return (
     <>
       <main className="w-full min-h-screen bg-[#f4f1ea] font-sans space-y-20 md:space-y-28">
-        <Hero heroSlides={heroSlides} />
+        <Hero heroSlides={mappedHeroSlides} />
 
         <ProfileSection profileStatistics={profileStatistics} />
 
