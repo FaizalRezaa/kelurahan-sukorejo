@@ -13,7 +13,6 @@ import {
   LogOut,
   Menu,
   Sparkles,
-  Users,
   X,
   ExternalLink,
   Building2,
@@ -45,7 +44,7 @@ const navSections = [
       },
       {
         href: "/admin/artikel",
-        label: "Artikel & Berita",
+        label: "Artikel",
         icon: FileText,
       },
     ],
@@ -62,16 +61,6 @@ const navSections = [
         href: "/admin/galeri",
         label: "Galeri Foto",
         icon: ImageIcon,
-      },
-    ],
-  },
-  {
-    title: "Pengaturan",
-    items: [
-      {
-        href: "/admin/pengaturan",
-        label: "Pengguna Admin",
-        icon: Users,
       },
     ],
   },

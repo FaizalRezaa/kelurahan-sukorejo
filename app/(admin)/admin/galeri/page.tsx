@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TablePagination } from "@/components/ui/table-pagination";
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { galeriData, GaleriRecord } from "@/components/admin/mock-data";
 
 export default function GaleriPage() {
@@ -41,7 +42,7 @@ export default function GaleriPage() {
 
   const handleOpenAdd = () => {
     setEditingItem(null);
-    setFormImagePath("https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&auto=format&fit=crop");
+    setFormImagePath("");
     setFormAlt("");
     setFormUrutan(photos.length + 1);
     setIsDialogOpen(true);
@@ -241,23 +242,16 @@ export default function GaleriPage() {
           description="Formulir data foto dokumentasi galeri."
         >
           <form onSubmit={handleSave} className="space-y-3 pt-2">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Image Path / URL Foto
-              </label>
-              <Input
-                type="text"
-                required
-                placeholder="https://..."
-                value={formImagePath}
-                onChange={(e) => setFormImagePath(e.target.value)}
-              />
-              {formImagePath && (
-                <div className="mt-2 h-28 w-full overflow-hidden rounded-md border border-slate-200">
-                  <img src={formImagePath} alt="Preview" className="h-full w-full object-cover" />
-                </div>
-              )}
-            </div>
+            <ImageUploadField
+              key={editingItem?.id ?? "new-galeri"}
+              label="Upload Foto Galeri"
+              bucket="galeri-images"
+              value={formImagePath}
+              onChange={setFormImagePath}
+              required
+              previewAlt={formAlt || "Foto galeri"}
+              previewClassName="h-36"
+            />
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">

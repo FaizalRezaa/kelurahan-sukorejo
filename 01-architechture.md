@@ -31,13 +31,23 @@
 
 ```text
 profil_statistik   (id, label, value, urutan)
+                   -- Fixed 3 rows (urutan 1–3), mencerminkan 3 kolom statistik di beranda
+
 hero_slides        (id, image_path, alt, urutan, aktif)
 
-artikel             (id, slug, judul, kategori['Berita'|'Kegiatan'],
-                    ringkasan, konten, image_path, status['draft'|'terbit'],
+artikel             (id, slug, judul,
+                    kategori ['Berita' | 'Kegiatan' | 'Pengumuman'],
+                    ringkasan, konten TEXT (HTML — output rich text editor),
+                    image_path, status ['draft' | 'terbit'],
                     tanggal_terbit, created_at, updated_at)
 
-layanan            (id, slug, judul, deskripsi, image_path, created_at)
+layanan_publik     (id, urutan, judul, deskripsi, image_path, href, created_at)
+                   -- Fixed 6 rows · mencerminkan 6 kotak ResourceCard di beranda
+                   -- Field `href` menentukan halaman tujuan saat kotak diklik
+
+banner_items       (id, urutan, judul, button_text, image_path, href, created_at)
+                   -- Fixed 2 rows · mencerminkan 2 BannerCard CTA di beranda
+                   -- Field `button_text` untuk label tombol, `href` untuk link tujuan
 
 galeri             (id, image_path, alt, urutan, created_at)
 

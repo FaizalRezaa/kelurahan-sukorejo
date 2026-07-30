@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Plus,
   Edit2,
@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TablePagination } from "@/components/ui/table-pagination";
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
@@ -26,6 +26,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { artikelData, ArtikelRecord } from "@/components/admin/mock-data";
+import { ImageUploadField } from "@/components/admin/image-upload-field";
+import { QuillEditor } from "@/components/admin/quill-editor";
+
+type Kategori = "Berita" | "Kegiatan" | "Pengumuman";
+
+function getKategoriBadgeVariant(kategori: Kategori) {
+  if (kategori === "Berita") return "accent" as const;
+  if (kategori === "Kegiatan") return "success" as const;
+  return "purple" as const; // Pengumuman
+}
 
 export default function ArtikelPage() {
   const [artikels, setArtikels] = useState<ArtikelRecord[]>(artikelData);
@@ -46,12 +56,10 @@ export default function ArtikelPage() {
   // Form Fields
   const [formJudul, setFormJudul] = useState("");
   const [formSlug, setFormSlug] = useState("");
-  const [formKategori, setFormKategori] = useState<"Berita" | "Kegiatan">("Berita");
+  const [formKategori, setFormKategori] = useState<Kategori>("Berita");
   const [formRingkasan, setFormRingkasan] = useState("");
   const [formKonten, setFormKonten] = useState("");
   const [formImagePath, setFormImagePath] = useState("");
-  const [formImagePreview, setFormImagePreview] = useState("");
-  const [formImageName, setFormImageName] = useState("");
   const [formStatus, setFormStatus] = useState<"draft" | "terbit">("terbit");
   const [formTanggalTerbit, setFormTanggalTerbit] = useState("");
 
@@ -81,45 +89,11 @@ export default function ArtikelPage() {
       .replace(/^-+|-+$/g, "");
   };
 
-  useEffect(() => {
-    return () => {
-      if (formImagePreview.startsWith("blob:")) {
-        URL.revokeObjectURL(formImagePreview);
-      }
-    };
-  }, [formImagePreview]);
-
   const handleJudulChange = (val: string) => {
     setFormJudul(val);
     if (!editingItem) {
       setFormSlug(slugify(val));
     }
-  };
-
-  const handleImageFileChange = (file: File | null) => {
-    if (!file) {
-      if (formImagePreview.startsWith("blob:")) {
-        URL.revokeObjectURL(formImagePreview);
-      }
-      setFormImagePreview("");
-      setFormImageName("");
-      return;
-    }
-
-    if (formImagePreview.startsWith("blob:")) {
-      URL.revokeObjectURL(formImagePreview);
-    }
-
-    const previewUrl = URL.createObjectURL(file);
-    const safeName = file.name
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-_.]/g, "");
-    const generatedPath = `https://kelurahan-sukorejo.s3.ap-southeast-1.amazonaws.com/artikel/${Date.now()}-${safeName}`;
-
-    setFormImagePreview(previewUrl);
-    setFormImageName(file.name);
-    setFormImagePath(generatedPath);
   };
 
   const handleOpenAdd = () => {
@@ -130,9 +104,7 @@ export default function ArtikelPage() {
     setFormKategori("Berita");
     setFormRingkasan("");
     setFormKonten("");
-    setFormImagePreview("");
-    setFormImageName("");
-    setFormImagePath("https://kelurahan-sukorejo.s3.ap-southeast-1.amazonaws.com/artikel/default-cover.jpg");
+    setFormImagePath("");
     setFormStatus("terbit");
     setFormTanggalTerbit(today);
     setIsDialogOpen(true);
@@ -142,12 +114,10 @@ export default function ArtikelPage() {
     setEditingItem(item);
     setFormJudul(item.judul);
     setFormSlug(item.slug);
-    setFormKategori(item.kategori);
+    setFormKategori(item.kategori as Kategori);
     setFormRingkasan(item.ringkasan);
     setFormKonten(item.konten || "");
     setFormImagePath(item.image_path);
-    setFormImagePreview("");
-    setFormImageName("");
     setFormStatus(item.status);
     setFormTanggalTerbit(item.tanggal_terbit === "-" ? new Date().toISOString().split("T")[0] : item.tanggal_terbit);
     setIsDialogOpen(true);
@@ -160,7 +130,7 @@ export default function ArtikelPage() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formJudul.trim()) return;
+    if (!formJudul.trim() || !formImagePath.trim()) return;
 
     const today = new Date().toISOString().split("T")[0];
 
@@ -225,7 +195,7 @@ export default function ArtikelPage() {
             Kelola Artikel & Berita
           </h1>
           <p className="text-sm text-slate-500">
-            Publikasi berita kegiatan & pengumuman kelurahan (<code className="font-mono text-slate-700">artikel</code>).
+            Publikasi berita, kegiatan & pengumuman kelurahan (<code className="font-mono text-slate-700">artikel</code>).
           </p>
         </div>
         <Button onClick={handleOpenAdd} size="sm" className="gap-2 text-sm font-semibold px-4 py-2">
@@ -253,11 +223,12 @@ export default function ArtikelPage() {
                 setCategoryFilter(e.target.value);
                 setPage(1);
               }}
-              className="w-40 text-sm h-10"
+              className="w-44 text-sm h-10"
             >
               <option value="ALL">Kategori: Semua</option>
               <option value="Berita">Berita</option>
               <option value="Kegiatan">Kegiatan</option>
+              <option value="Pengumuman">Pengumuman</option>
             </Select>
 
             <Select
@@ -325,7 +296,7 @@ export default function ArtikelPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={item.kategori === "Berita" ? "accent" : "success"}>
+                      <Badge variant={getKategoriBadgeVariant(item.kategori as Kategori)}>
                         {item.kategori}
                       </Badge>
                     </TableCell>
@@ -379,10 +350,10 @@ export default function ArtikelPage() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent
           title={editingItem ? "Edit Artikel" : "Buat Artikel Baru"}
-          description="Formulir pengelolaan konten berita dan kegiatan kelurahan."
+          description="Formulir pengelolaan konten berita, kegiatan, dan pengumuman kelurahan."
           className="max-w-2xl"
         >
-          <form onSubmit={handleSave} className="space-y-3 pt-2 max-h-[70vh] overflow-y-auto pr-1">
+          <form onSubmit={handleSave} className="space-y-3 pt-2 max-h-[75vh] overflow-y-auto pr-1">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">
@@ -420,11 +391,12 @@ export default function ArtikelPage() {
                 </label>
                 <Select
                   value={formKategori}
-                  onChange={(e) => setFormKategori(e.target.value as "Berita" | "Kegiatan")}
+                  onChange={(e) => setFormKategori(e.target.value as Kategori)}
                   className="text-sm h-11"
                 >
                   <option value="Berita">Berita</option>
                   <option value="Kegiatan">Kegiatan</option>
+                  <option value="Pengumuman">Pengumuman</option>
                 </Select>
               </div>
 
@@ -455,52 +427,16 @@ export default function ArtikelPage() {
               </div>
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
-              <div className="space-y-2">
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Sampul Foto (Upload ke S3)
-                </label>
-                <input
-                  id="artikel-image"
-                  type="file"
-                  accept="image/*"
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-slate-700 hover:file:bg-slate-200"
-                  onChange={(e) => handleImageFileChange(e.target.files?.[0] ?? null)}
-                />
-                <p className="text-sm text-slate-500">
-                  Pilih file gambar untuk langsung menghasilkan referensi bucket S3.
-                </p>
-                <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
-                  {formImagePreview || formImagePath ? (
-                    <img
-                      src={formImagePreview || formImagePath}
-                      alt={formJudul || "Pratinjau sampul"}
-                      className="h-48 w-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-48 items-center justify-center text-sm text-slate-500">
-                      Pratinjau akan muncul setelah memilih gambar.
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Referensi S3
-                </label>
-                <Input
-                  type="text"
-                  readOnly
-                  value={formImagePath}
-                  className="text-sm"
-                />
-                {formImageName ? (
-                  <p className="text-sm text-slate-500">File dipilih: {formImageName}</p>
-                ) : (
-                  <p className="text-sm text-slate-500">File belum dipilih.</p>
-                )}
-              </div>
-            </div>
+            <ImageUploadField
+              key={editingItem?.id ?? "new-artikel"}
+              label="Sampul Foto Artikel"
+              bucket="artikel-images"
+              value={formImagePath}
+              onChange={setFormImagePath}
+              required
+              previewAlt={formJudul || "Sampul artikel"}
+              previewClassName="h-48"
+            />
 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1">
@@ -509,7 +445,7 @@ export default function ArtikelPage() {
               <Textarea
                 rows={2}
                 required
-                placeholder="Ringkasan singkat..."
+                placeholder="Ringkasan singkat yang tampil di kartu berita..."
                 value={formRingkasan}
                 onChange={(e) => setFormRingkasan(e.target.value)}
                 className="text-sm"
@@ -517,16 +453,13 @@ export default function ArtikelPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Isi Konten Lengkap
               </label>
-              <Textarea
-                rows={4}
-                required
-                placeholder="Konten lengkap artikel..."
+              <QuillEditor
                 value={formKonten}
-                onChange={(e) => setFormKonten(e.target.value)}
-                className="text-sm"
+                onChange={setFormKonten}
+                placeholder="Tulis isi artikel lengkap di sini. Gunakan toolbar untuk format teks..."
               />
             </div>
 
@@ -560,7 +493,7 @@ export default function ArtikelPage() {
                 />
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant={previewItem.kategori === "Berita" ? "accent" : "success"}>
+                <Badge variant={getKategoriBadgeVariant(previewItem.kategori as Kategori)}>
                   {previewItem.kategori}
                 </Badge>
                 <Badge variant={previewItem.status === "terbit" ? "success" : "warning"}>
@@ -572,7 +505,12 @@ export default function ArtikelPage() {
               <div className="bg-slate-50 p-3 rounded-md border border-slate-100 text-xs text-slate-700 leading-relaxed">
                 {previewItem.ringkasan}
               </div>
-              <p className="text-xs text-slate-800 leading-relaxed">{previewItem.konten}</p>
+              {previewItem.konten && (
+                <div
+                  className="text-xs text-slate-800 leading-relaxed prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: previewItem.konten }}
+                />
+              )}
               <DialogFooter>
                 <Button variant="outline" size="sm" onClick={() => setIsPreviewOpen(false)}>
                   Tutup

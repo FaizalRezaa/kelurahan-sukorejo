@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TablePagination } from "@/components/ui/table-pagination";
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { heroSlidesData, HeroSlideRecord } from "@/components/admin/mock-data";
 
 export default function HeroSlidesPage() {
@@ -34,7 +35,7 @@ export default function HeroSlidesPage() {
 
   const handleOpenAdd = () => {
     setEditingSlide(null);
-    setFormImagePath("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&auto=format&fit=crop");
+    setFormImagePath("");
     setFormAlt("");
     setFormUrutan(slides.length + 1);
     setFormAktif(true);
@@ -212,23 +213,16 @@ export default function HeroSlidesPage() {
           description="Atur gambar banner hero untuk diperbarui di database hero_slides."
         >
           <form onSubmit={handleSave} className="space-y-3 pt-2">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Image Path / URL Gambar
-              </label>
-              <Input
-                type="text"
-                required
-                placeholder="https://..."
-                value={formImagePath}
-                onChange={(e) => setFormImagePath(e.target.value)}
-              />
-              {formImagePath && (
-                <div className="mt-2 h-24 w-full overflow-hidden rounded-md border border-slate-200">
-                  <img src={formImagePath} alt="Preview" className="h-full w-full object-cover" />
-                </div>
-              )}
-            </div>
+            <ImageUploadField
+              key={editingSlide?.id ?? "new-hero-slide"}
+              label="Gambar Banner Hero"
+              bucket="hero-images"
+              value={formImagePath}
+              onChange={setFormImagePath}
+              required
+              previewAlt={formAlt || "Banner hero"}
+              previewClassName="h-32"
+            />
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">

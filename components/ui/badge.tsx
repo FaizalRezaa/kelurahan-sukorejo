@@ -9,6 +9,7 @@ const variants: Record<string, string> = {
   warning: "inline-flex items-center rounded-md border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700 transition-colors",
   accent: "inline-flex items-center rounded-md border border-sky-200 bg-sky-50 px-2.5 py-0.5 text-xs font-semibold text-sky-700 transition-colors",
   destructive: "inline-flex items-center rounded-md border border-rose-200 bg-rose-50 px-2.5 py-0.5 text-xs font-semibold text-rose-700 transition-colors",
+  purple: "inline-flex items-center rounded-md border border-purple-200 bg-purple-50 px-2.5 py-0.5 text-xs font-semibold text-purple-700 transition-colors",
 };
 
 interface BadgeProps extends ComponentPropsWithoutRef<"span"> {
