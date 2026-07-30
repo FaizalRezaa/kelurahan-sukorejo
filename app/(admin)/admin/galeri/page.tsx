@@ -95,20 +95,32 @@ export default function GaleriPage() {
     setIsDialogOpen(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formAlt.trim()) return;
+
+    // Ambil file fisik mentah langsung dari input type="file" di DOM secara pasti
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const rawFile = fileInput?.files?.[0] ?? formImageFile;
+
     if (editingItem) {
       updateMutation.mutate({
         id: editingItem.id,
         alt: formAlt,
         urutan: Number(formUrutan),
-        imageFile: formImageFile ?? undefined,
+        imageFile: rawFile ?? undefined,
         currentImagePath: editingItem.image_path,
       });
     } else {
-      if (!formImageFile) return;
-      insertMutation.mutate({ imageFile: formImageFile, alt: formAlt, urutan: Number(formUrutan) });
+      if (!rawFile) {
+        alert("Pilih foto terlebih dahulu!");
+        return;
+      }
+      insertMutation.mutate({ 
+        imageFile: rawFile, 
+        alt: formAlt, 
+        urutan: Number(formUrutan) 
+      });
     }
   };
 
@@ -252,7 +264,7 @@ export default function GaleriPage() {
               label="Upload Foto Galeri"
               bucket="galeri-images"
               value={formImagePath}
-              onChange={(url, file) => { setFormImagePath(url); if (file) setFormImageFile(file); }}
+              onChange={setFormImagePath}
               required={!editingItem}
               previewAlt={formAlt || "Foto galeri"}
               previewClassName="h-36"
