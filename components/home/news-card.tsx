@@ -11,6 +11,7 @@ export function NewsCard({
   href,
 }: NewsItem) {
   const isBerita = category === "Berita";
+  const isPengumuman = category === "Pengumuman";
 
   return (
     <article className="flex flex-col justify-between group h-full bg-white rounded-xl overflow-hidden border border-zinc-200/80 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
@@ -34,6 +35,8 @@ export function NewsCard({
               className={`inline-block px-3 py-0.5 text-[11px] font-semibold rounded-full ${
                 isBerita
                   ? "bg-emerald-100 text-emerald-800"
+                  : isPengumuman
+                  ? "bg-purple-100 text-purple-800"
                   : "bg-blue-100 text-blue-800"
               }`}
             >

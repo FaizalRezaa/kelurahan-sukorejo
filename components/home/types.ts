@@ -15,7 +15,7 @@ export type BannerItem = {
 export type NewsItem = {
   id: string;
   date: string;
-  category: "Berita" | "Kegiatan";
+  category: "Berita" | "Kegiatan" | "Pengumuman";
   title: string;
   summary: string;
   image: string;
