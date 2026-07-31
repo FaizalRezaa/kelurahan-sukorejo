@@ -19,7 +19,6 @@ function formatTanggal(iso: string | null): string {
 function normalizeKategori(raw: string): NewsItem["category"] {
   const lower = raw.toLowerCase();
   if (lower === "kegiatan") return "Kegiatan";
-  if (lower === "pengumuman") return "Pengumuman";
   return "Berita";
 }
 

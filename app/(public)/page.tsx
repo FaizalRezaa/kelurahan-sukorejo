@@ -167,34 +167,34 @@ export default async function Page() {
   const mappedHeroSlides =
     heroRows && heroRows.length > 0
       ? (heroRows as HeroSlideShow[]).map((row) => ({
-          id: row.id,
-          image: row.image_path,
-          alt: row.title,
-          urutan: row.urutan,
-        }))
+        id: row.id,
+        image: row.image_path,
+        alt: row.title,
+        urutan: row.urutan,
+      }))
       : heroSlidesStatic;
 
   const newsItems: NewsItem[] =
     artikelRows && artikelRows.length > 0
       ? (artikelRows as ArtikelRow[]).map((row) => ({
-          id: row.id,
-          date: formatTanggal(row.tanggal_terbit),
-          category: normalizeKategori(row.kategori),
-          title: row.judul,
-          summary: row.ringkasan ?? "",
-          image:
-            row.image_path ??
-            "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop",
-          href: `/artikel/${row.slug}`,
-        }))
+        id: row.id,
+        date: formatTanggal(row.tanggal_terbit),
+        category: normalizeKategori(row.kategori),
+        title: row.judul,
+        summary: row.ringkasan ?? "",
+        image:
+          row.image_path ??
+          "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop",
+        href: `/artikel/${row.slug}`,
+      }))
       : newsItemsStatic;
 
   const profileStatistics: ProfileStatistic[] =
     statistikRows && statistikRows.length > 0
       ? (statistikRows as ProfilStatistikRow[]).map((row) => ({
-          value: row.value,
-          label: row.label,
-        }))
+        value: row.value,
+        label: row.label,
+      }))
       : profileStatisticsStatic;
 
   const galleryStyles = [
@@ -215,50 +215,50 @@ export default async function Page() {
   const mappedGalleryItems =
     displayGaleriDb && displayGaleriDb.length > 0
       ? (displayGaleriDb as GaleriRow[]).map((row, index) => {
-          const isLast = index === 5 && hasMoreGaleriDb;
-          return {
-            id: row.id,
-            image: row.image_path,
-            alt: row.alt,
-            caption: row.alt,
-            category: "Dokumentasi",
-            className: galleryStyles[index % galleryStyles.length],
-            overlayText: isLast ? "Lihat galeri lainnya" : undefined,
-            overlayHref: isLast ? "/galeri" : undefined,
-          };
-        })
+        const isLast = index === 5 && hasMoreGaleriDb;
+        return {
+          id: row.id,
+          image: row.image_path,
+          alt: row.alt,
+          caption: row.alt,
+          category: "Dokumentasi",
+          className: galleryStyles[index % galleryStyles.length],
+          overlayText: isLast ? "Lihat galeri lainnya" : undefined,
+          overlayHref: isLast ? "/galeri" : undefined,
+        };
+      })
       : displayGaleriStatic.map((item, index) => {
-          const isLast = index === 5 && hasMoreGaleriStatic;
-          return isLast
-            ? { ...item, overlayText: "Lihat galeri lainnya", overlayHref: "/galeri" }
-            : item;
-        });
+        const isLast = index === 5 && hasMoreGaleriStatic;
+        return isLast
+          ? { ...item, overlayText: "Lihat galeri lainnya", overlayHref: "/galeri" }
+          : item;
+      });
 
   // Map Layanan Publik
   const mappedResourceItems =
     layananRows && layananRows.length > 0
       ? (layananRows as LayananPublikRow[]).map((row) => ({
-          title: row.judul,
-          description: row.deskripsi,
-          icon: "FileText" as const,
-          href: row.href,
-          // Berikan fallback gambar default jika image_path kosong atau null
-          image:
-            row.image_path && row.image_path.trim() !== ""
-              ? row.image_path
-              : "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop",
-        }))
+        title: row.judul,
+        description: row.deskripsi,
+        icon: "FileText" as const,
+        href: row.href,
+        // Berikan fallback gambar default jika image_path kosong atau null
+        image:
+          row.image_path && row.image_path.trim() !== ""
+            ? row.image_path
+            : "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop",
+      }))
       : resourceItemsStatic;
 
   // Map Banner CTA
   const mappedBannerItems =
     bannerRows && bannerRows.length > 0
       ? (bannerRows as BannerItemRow[]).map((row) => ({
-          title: row.judul,
-          buttonText: row.button_text,
-          image: row.image_path ?? "",
-          href: row.href,
-        }))
+        title: row.judul,
+        buttonText: row.button_text,
+        image: row.image_path ?? "",
+        href: row.href,
+      }))
       : bannerItemsStatic;
 
   return (

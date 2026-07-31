@@ -11,7 +11,7 @@ export default async function GaleriPage() {
   return (
     <main className="min-h-screen bg-[#f4f1ea]">
       {/* GALLERY GRID */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 md:px-10 py-12">
+      <section className="pt-32 max-w-6xl mx-auto px-4 sm:px-6 md:px-10 py-12">
         {/* Count */}
         <p className="text-sm text-zinc-500 mb-8">
           Menampilkan{" "}
