@@ -62,7 +62,6 @@ export function Navbar() {
 
   const navLinks = [
     { name: "Beranda", href: "/" },
-    { name: "Profil", href: "/#profil" },
     { name: "Layanan", href: "/#layanan" },
     { name: "Artikel", href: "/artikel" },
     { name: "Galeri", href: "/galeri" },

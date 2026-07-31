@@ -116,7 +116,7 @@ export default function AdminDashboardLayout({
               </div>
               <div className="flex flex-col">
                 <span className="text-sm font-semibold leading-tight text-slate-900">
-                  Sukorejo CMS
+                  Admin Sukorejo
                 </span>
                 <span className="text-[11px] text-slate-500 font-medium">
                   Perangkat Desa
@@ -189,10 +189,10 @@ export default function AdminDashboardLayout({
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="text-xs font-semibold text-slate-900 truncate">
-                  Nina Rahma
+                  Admin Sukorejo
                 </span>
                 <span className="text-[11px] text-slate-400 truncate">
-                  admin@sukorejo.desa.id
+                  kelsukorejo.sutojayan@gmail.com
                 </span>
               </div>
             </div>

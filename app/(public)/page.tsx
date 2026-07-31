@@ -11,7 +11,7 @@ import {
   heroSlides as heroSlidesStatic,
   profileStatistics as profileStatisticsStatic,
   resourceItems as resourceItemsStatic, // Ubah nama biar jelas ini statis
-  bannerItems as bannerItemsStatic,       // Ubah nama biar jelas ini statis
+  bannerItems as bannerItemsStatic, // Ubah nama biar jelas ini statis
   newsItems as newsItemsStatic,
   galleryItems as galleryItemsStatic,
 } from "../../components/home/data";
@@ -76,11 +76,13 @@ type BannerItemRow = {
 // ─── Helper: format tanggal ISO → "23 JULI 2026" ─────────────────────────────
 function formatTanggal(iso: string | null): string {
   if (!iso) return "";
-  return new Date(iso).toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).toUpperCase();
+  return new Date(iso)
+    .toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    })
+    .toUpperCase();
 }
 
 // ─── Helper: normalisasi kategori ke union type NewsItem ─────────────────────
@@ -112,7 +114,10 @@ export default async function Page() {
     .order("urutan", { ascending: true });
 
   if (statistikError) {
-    console.error("Gagal mengambil data profil_statistik:", statistikError.message);
+    console.error(
+      "Gagal mengambil data profil_statistik:",
+      statistikError.message,
+    );
   }
 
   // ── Fetch galeri foto ──────────────────────────────────────────────────────
@@ -212,9 +217,10 @@ export default async function Page() {
           icon: "FileText" as const,
           href: row.href,
           // Berikan fallback gambar default jika image_path kosong atau null
-          image: row.image_path && row.image_path.trim() !== "" 
-            ? row.image_path 
-            : "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop",
+          image:
+            row.image_path && row.image_path.trim() !== ""
+              ? row.image_path
+              : "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop",
         }))
       : resourceItemsStatic;
 
@@ -265,7 +271,8 @@ export default async function Page() {
                 Berita & Kegiatan Terbaru
               </h2>
               <p className="text-sm sm:text-base text-zinc-600 font-medium max-w-xl mx-auto mb-4">
-                Informasi terkini tentang kegiatan dan program pemerintah kelurahan
+                Informasi terkini tentang kegiatan dan program pemerintah
+                kelurahan
               </p>
             </div>
 
