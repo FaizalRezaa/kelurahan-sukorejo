@@ -26,13 +26,13 @@ export function NewsCard({
           />
         </div>
 
-        <div className="p-5 sm:p-6 flex flex-col">
-          <div className="flex items-center justify-between gap-2 mb-3">
-            <span className="text-xs font-bold tracking-wider text-zinc-500 uppercase">
+        <div className="p-3 sm:p-6 flex flex-col">
+          <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+            <span className="text-[9px] sm:text-xs font-bold tracking-wider text-zinc-500 uppercase">
               {date}
             </span>
             <span
-              className={`inline-block px-3 py-0.5 text-[11px] font-semibold rounded-full ${
+              className={`inline-block px-2 sm:px-3 py-0.5 text-[9px] sm:text-[11px] font-semibold rounded-full ${
                 isBerita
                   ? "bg-emerald-100 text-emerald-800"
                   : isPengumuman
@@ -44,20 +44,20 @@ export function NewsCard({
             </span>
           </div>
 
-          <h3 className="text-lg sm:text-xl font-sans font-bold leading-snug text-zinc-900 mb-3 group-hover:text-[#2d5e45] transition-colors line-clamp-2">
+          <h3 className="text-sm sm:text-xl font-sans font-bold leading-tight sm:leading-snug text-zinc-900 mb-1.5 sm:mb-3 group-hover:text-[#2d5e45] transition-colors line-clamp-2">
             {title}
           </h3>
 
-          <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed line-clamp-3 mb-6">
+          <p className="text-[11px] sm:text-sm text-zinc-600 leading-relaxed line-clamp-2 sm:line-clamp-3 mb-3 sm:mb-6">
             {summary}
           </p>
         </div>
       </div>
 
-      <div className="px-5 pb-6 sm:px-6">
+      <div className="px-3 pb-3 sm:px-6 sm:pb-6">
         <Link
           href={href}
-          className="inline-flex items-center justify-center rounded-full bg-[#2d5e45] px-5 py-2.5 text-xs sm:text-sm font-medium text-white transition-all duration-300 hover:bg-[#214633] hover:shadow-md active:scale-95"
+          className="inline-flex items-center justify-center rounded-full bg-[#2d5e45] px-3 py-1.5 sm:px-5 sm:py-2.5 text-[10px] sm:text-sm font-medium text-white transition-all duration-300 hover:bg-[#214633] hover:shadow-md active:scale-95 w-full sm:w-auto"
         >
           Baca selengkapnya
         </Link>
