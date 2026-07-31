@@ -64,7 +64,7 @@ export function Hero({ heroSlides }: HeroProps) {
           <p className="text-xs uppercase tracking-[0.35em] text-[#e4c77d] sm:text-sm">
             Pemerintah Kabupaten Blitar
           </p>
-          <h1 className="mt-3 text-5xl font-semibold uppercase tracking-[0.06em] text-white sm:text-6xl md:text-7xl">
+          <h1 className="mt-3 text-5xl font-semibold uppercase tracking-[0.04em] text-white sm:text-6xl md:text-7xl">
             Kelurahan Sukorejo
           </h1>
         </div>

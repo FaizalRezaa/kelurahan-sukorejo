@@ -13,7 +13,7 @@ export function ProfileSection({ profileStatistics }: ProfileSectionProps) {
     >
       <div className="relative aspect-[5/4] overflow-hidden rounded-sm bg-[#d5e0d7] shadow-sm md:aspect-[4/5]">
         <Image
-          src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=85&w=1200&auto=format&fit=crop"
+          src="/foto-profil.jpeg"
           alt="Warga berkumpul dalam kegiatan lingkungan"
           fill
           sizes="(max-width: 768px) 100vw, 42vw"

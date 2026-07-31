@@ -27,6 +27,8 @@ export type GalleryItem = {
   image: string;
   alt: string;
   className: string;
+  overlayText?: string;
+  overlayHref?: string;
 };
 
 export type HeroSlide = {

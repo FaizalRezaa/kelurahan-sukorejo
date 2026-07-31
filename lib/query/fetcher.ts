@@ -260,6 +260,23 @@ export async function fetchArtikelPublik(params?: {
   return fetchArtikelList({ ...params, status: "terbit" });
 }
 
+export async function fetchArtikelCount(params?: {
+  kategori?: ArtikelKategori;
+  status?: "draft" | "terbit";
+}): Promise<number> {
+  const supabase = createClient();
+  let query = supabase
+    .from("artikel")
+    .select("*", { count: "exact", head: true });
+
+  if (params?.kategori) query = query.eq("kategori", params.kategori);
+  if (params?.status)   query = query.eq("status", params.status);
+
+  const { count, error } = await query;
+  if (error) throw new Error(error.message);
+  return count ?? 0;
+}
+
 /**
  * Ambil artikel berdasarkan slug. Bisa dipakai di admin (draft) maupun publik.
  * Untuk halaman publik, pastikan RLS Supabase hanya izinkan 'terbit'.

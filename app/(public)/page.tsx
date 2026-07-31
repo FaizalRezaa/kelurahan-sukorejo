@@ -125,7 +125,7 @@ export default async function Page() {
     .from("galeri")
     .select("id, image_path, alt, urutan")
     .order("urutan", { ascending: true })
-    .limit(6);
+    .limit(7);
 
   if (galeriError) {
     console.error("Gagal mengambil data galeri:", galeriError.message);
@@ -196,17 +196,42 @@ export default async function Page() {
         }))
       : profileStatisticsStatic;
 
+  const galleryStyles = [
+    "col-span-2 aspect-[16/10] sm:col-span-1 sm:aspect-[4/5] md:col-span-4 md:row-span-2 md:aspect-auto",
+    "col-span-2 aspect-[16/10] sm:col-span-1 sm:aspect-[4/5] md:col-span-2 md:row-span-2 md:aspect-auto",
+    "col-span-1 aspect-[4/5] md:col-span-3 md:row-span-2 md:aspect-auto",
+    "col-span-1 aspect-[4/5] md:col-span-3 md:row-span-2 md:aspect-auto",
+    "col-span-2 aspect-[16/10] sm:col-span-1 sm:aspect-[4/5] md:col-span-2 md:row-span-2 md:aspect-auto",
+    "col-span-1 aspect-[4/5] md:col-span-4 md:row-span-2 md:aspect-auto",
+  ];
+
+  const hasMoreGaleriDb = galeriRows && galeriRows.length > 6;
+  const displayGaleriDb = hasMoreGaleriDb ? galeriRows.slice(0, 6) : galeriRows;
+
+  const hasMoreGaleriStatic = galleryItemsStatic.length > 6;
+  const displayGaleriStatic = hasMoreGaleriStatic ? galleryItemsStatic.slice(0, 6) : galleryItemsStatic;
+
   const mappedGalleryItems =
-    galeriRows && galeriRows.length > 0
-      ? (galeriRows as GaleriRow[]).map((row) => ({
-          id: row.id,
-          image: row.image_path,
-          alt: row.alt,
-          caption: row.alt,
-          category: "Dokumentasi",
-          className: "",
-        }))
-      : galleryItemsStatic;
+    displayGaleriDb && displayGaleriDb.length > 0
+      ? (displayGaleriDb as GaleriRow[]).map((row, index) => {
+          const isLast = index === 5 && hasMoreGaleriDb;
+          return {
+            id: row.id,
+            image: row.image_path,
+            alt: row.alt,
+            caption: row.alt,
+            category: "Dokumentasi",
+            className: galleryStyles[index % galleryStyles.length],
+            overlayText: isLast ? "Lihat galeri lainnya" : undefined,
+            overlayHref: isLast ? "/galeri" : undefined,
+          };
+        })
+      : displayGaleriStatic.map((item, index) => {
+          const isLast = index === 5 && hasMoreGaleriStatic;
+          return isLast
+            ? { ...item, overlayText: "Lihat galeri lainnya", overlayHref: "/galeri" }
+            : item;
+        });
 
   // Map Layanan Publik
   const mappedResourceItems =
@@ -276,7 +301,7 @@ export default async function Page() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-6 lg:gap-8 mb-12">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-12">
               {newsItems.map((news) => (
                 <NewsCard key={news.id} {...news} />
               ))}
@@ -310,7 +335,7 @@ export default async function Page() {
               </p>
             </div>
 
-            <div className="grid auto-rows-auto grid-cols-2 gap-1.5 sm:gap-2 md:grid-cols-6 md:grid-flow-dense md:auto-rows-36 lg:auto-rows-44">
+            <div className="grid auto-rows-auto grid-cols-2 gap-1.5 sm:gap-2 md:grid-cols-6 md:grid-flow-dense md:auto-rows-40 lg:auto-rows-48">
               {mappedGalleryItems.map((item) => (
                 <GalleryCard key={item.id} item={item} />
               ))}
