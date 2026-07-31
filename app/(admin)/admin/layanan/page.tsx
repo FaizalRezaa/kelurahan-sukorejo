@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -14,11 +14,12 @@ import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { queryKeys } from "@/lib/query/keys";
 import {
   fetchLayananPublik,
-  updateLayananPublik,
+  updateLayananPublikWithImage,
   fetchBannerItems,
-  updateBannerItem,
+  updateBannerItemWithImage,
 } from "@/lib/query/fetcher";
-import type { LayananPublik, LayananPublikUpdate, BannerItem, BannerItemUpdate } from "@/lib/query/schema";
+import type { LayananPublik, BannerItem } from "@/lib/query/schema";
+import type { LayananPublikUpdateFormPayload, BannerItemUpdateFormPayload } from "@/lib/query/fetcher";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Section A — 6 Kotak Layanan Publik
@@ -34,6 +35,7 @@ function LayananPublikSection() {
   const [formDeskripsi, setFormDeskripsi] = useState("");
   const [formImagePath, setFormImagePath] = useState("");
   const [formHref, setFormHref] = useState("");
+  const [formImageFile, setFormImageFile] = useState<File | null>(null);
 
   const { data: items = [], isLoading, isError, error } = useQuery({
     queryKey: queryKeys.layananPublik.list(),
@@ -41,7 +43,7 @@ function LayananPublikSection() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (payload: LayananPublikUpdate) => updateLayananPublik(payload),
+    mutationFn: (payload: LayananPublikUpdateFormPayload) => updateLayananPublikWithImage(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.layananPublik.all() });
       setIsDialogOpen(false);
@@ -62,6 +64,7 @@ function LayananPublikSection() {
     setFormDeskripsi(item.deskripsi);
     setFormImagePath(item.image_path ?? "");
     setFormHref(item.href);
+    setFormImageFile(null);
     setIsDialogOpen(true);
   };
 
@@ -72,8 +75,9 @@ function LayananPublikSection() {
       id: editingItem.id,
       judul: formJudul,
       deskripsi: formDeskripsi,
-      image_path: formImagePath || null,
       href: formHref,
+      imageFile: formImageFile,
+      currentImagePath: editingItem.image_path,
     });
   };
 
@@ -193,6 +197,7 @@ function LayananPublikSection() {
               bucket="layanan-images"
               value={formImagePath}
               onChange={(url) => setFormImagePath(url)}
+              onFileSelect={setFormImageFile}
               previewAlt={formJudul || "Gambar layanan"}
             />
             <div>
@@ -226,6 +231,7 @@ function BannerSection() {
   const [formButtonText, setFormButtonText] = useState("");
   const [formImagePath, setFormImagePath] = useState("");
   const [formHref, setFormHref] = useState("");
+  const [formImageFile, setFormImageFile] = useState<File | null>(null);
 
   const { data: items = [], isLoading, isError, error } = useQuery({
     queryKey: queryKeys.bannerItems.list(),
@@ -233,7 +239,7 @@ function BannerSection() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (payload: BannerItemUpdate) => updateBannerItem(payload),
+    mutationFn: (payload: BannerItemUpdateFormPayload) => updateBannerItemWithImage(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.bannerItems.all() });
       setIsDialogOpen(false);
@@ -246,6 +252,7 @@ function BannerSection() {
     setFormButtonText(item.button_text);
     setFormImagePath(item.image_path ?? "");
     setFormHref(item.href);
+    setFormImageFile(null);
     setIsDialogOpen(true);
   };
 
@@ -256,8 +263,9 @@ function BannerSection() {
       id: editingItem.id,
       judul: formJudul,
       button_text: formButtonText,
-      image_path: formImagePath || null,
       href: formHref,
+      imageFile: formImageFile,
+      currentImagePath: editingItem.image_path,
     });
   };
 
@@ -374,6 +382,7 @@ function BannerSection() {
               bucket="layanan-images"
               value={formImagePath}
               onChange={(url) => setFormImagePath(url)}
+              onFileSelect={setFormImageFile}
               previewAlt={formJudul || "Gambar banner"}
               previewClassName="h-36"
             />

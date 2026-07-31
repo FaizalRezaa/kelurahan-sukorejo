@@ -22,7 +22,12 @@ const nextConfig = {
         hostname: "images.unsplash.com",
         port: "",
         pathname: "/**",
-      }
+      },
+      {
+        protocol: "https",
+        hostname: "kjecnhwwzjsathisdwtb.supabase.co", // Mendaftarkan hostname Supabase milikmu
+        pathname: "/storage/v1/object/public/**", // Mengizinkan akses spesifik ke folder storage public
+      },
     ],
   },
 };

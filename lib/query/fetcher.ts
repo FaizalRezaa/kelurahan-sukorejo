@@ -136,6 +136,88 @@ export async function deleteHeroSlide(id: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+// --- Form-level mutations HeroSlide (DB + Storage terintegrasi) ---
+
+/** Payload form insert hero slide. imageFile wajib untuk slide baru. */
+export type HeroSlideInsertFormPayload = Omit<HeroSlideInsert, "image_path"> & {
+  imageFile: File;
+};
+
+/**
+ * Insert hero slide dengan upload gambar ke storage.
+ * Flow: upload gambar → dapatkan URL → insert DB.
+ */
+export async function insertHeroSlideWithImage(
+  payload: HeroSlideInsertFormPayload
+): Promise<HeroSlide> {
+  const { imageFile, ...dbPayload } = payload;
+  const BUCKET = "hero-images" as any;
+
+  const storagePath = buildStoragePath("slides", imageFile);
+  const image_path = await uploadFile(BUCKET, storagePath, imageFile);
+
+  return insertHeroSlide({ ...dbPayload, image_path });
+}
+
+/** Payload form update hero slide. imageFile opsional — jika ada, ganti gambar lama. */
+export type HeroSlideUpdateFormPayload = Omit<HeroSlideUpdate, "image_path"> & {
+  imageFile?: File | null;
+  /** URL gambar saat ini, dibutuhkan untuk delete file lama. */
+  currentImagePath?: string | null;
+};
+
+/**
+ * Update hero slide dengan penggantian gambar opsional.
+ * Flow: (opsional) hapus lama → upload baru → update DB.
+ */
+export async function updateHeroSlideWithImage(
+  payload: HeroSlideUpdateFormPayload
+): Promise<HeroSlide> {
+  const { imageFile, currentImagePath, ...dbPayload } = payload;
+  const BUCKET = "hero-images" as any;
+
+  let image_path: string | undefined = undefined;
+
+  if (imageFile) {
+    if (currentImagePath) {
+      try {
+        const oldPath = extractPathFromUrl(currentImagePath);
+        await deleteFile(BUCKET, oldPath);
+      } catch {
+        // Lanjut meski hapus gagal
+      }
+    }
+    const storagePath = buildStoragePath("slides", imageFile);
+    image_path = await uploadFile(BUCKET, storagePath, imageFile);
+  }
+
+  const updatePayload: HeroSlideUpdate =
+    image_path !== undefined
+      ? { ...dbPayload, image_path }
+      : dbPayload;
+
+  return updateHeroSlide(updatePayload);
+}
+
+/**
+ * Hapus hero slide beserta file gambarnya dari storage.
+ * Gunakan di admin untuk clean delete.
+ */
+export async function deleteHeroSlideWithImage(slide: HeroSlide): Promise<void> {
+  const BUCKET = "hero-images" as any;
+
+  if (slide.image_path) {
+    try {
+      const storagePath = extractPathFromUrl(slide.image_path);
+      await deleteFile(BUCKET, storagePath);
+    } catch {
+      // Lanjut meski hapus storage gagal
+    }
+  }
+
+  await deleteHeroSlide(slide.id);
+}
+
 // ---------------------------------------------------------------------------
 // artikel
 // ---------------------------------------------------------------------------
@@ -308,7 +390,7 @@ export async function insertArtikelWithImage(
   payload: ArtikelInsertFormPayload
 ): Promise<Artikel> {
   const { imageFile, ...dbPayload } = payload;
-  const BUCKET = "berita-images" as any;
+  const BUCKET = "artikel-images" as any;
 
   let image_path: string | null = null;
   if (imageFile) {
@@ -338,7 +420,7 @@ export async function updateArtikelWithImage(
   payload: ArtikelUpdateFormPayload
 ): Promise<Artikel> {
   const { imageFile, currentImagePath, ...dbPayload } = payload;
-  const BUCKET= "berita-images" as any;
+  const BUCKET = "artikel-images" as any;
 
   let image_path: string | null | undefined = undefined; // undefined = tidak berubah
 
@@ -370,7 +452,7 @@ export async function updateArtikelWithImage(
  * Gunakan fungsi ini di admin untuk clean delete.
  */
 export async function deleteArtikelWithImage(artikel: Artikel): Promise<void> {
-  const BUCKET = "berita-images" as any;
+  const BUCKET = "artikel-images" as any;
 
   if (artikel.image_path) {
     try {
@@ -429,6 +511,100 @@ export async function deleteLayananPublik(id: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+// --- Form-level mutations LayananPublik (DB + Storage terintegrasi) ---
+
+/**
+ * Payload form insert layanan publik.
+ * Jika imageFile diberikan, file akan di-upload ke bucket 'layanan-images'
+ * dan URL-nya disimpan ke field image_path.
+ */
+export type LayananPublikInsertFormPayload = Omit<LayananPublikInsert, "image_path"> & {
+  imageFile?: File | null;
+};
+
+/**
+ * Insert layanan publik dengan upload gambar opsional.
+ * Flow: upload gambar → dapatkan URL → insert DB.
+ */
+export async function insertLayananPublikWithImage(
+  payload: LayananPublikInsertFormPayload
+): Promise<LayananPublik> {
+  const { imageFile, ...dbPayload } = payload;
+  const BUCKET = "layanan-images" as any;
+
+  let image_path: string | null = null;
+  if (imageFile) {
+    const storagePath = buildStoragePath("icons", imageFile);
+    image_path = await uploadFile(BUCKET, storagePath, imageFile);
+  }
+
+  return insertLayananPublik({ ...dbPayload, image_path });
+}
+
+/**
+ * Payload form update layanan publik.
+ * Jika imageFile diberikan, gambar lama dihapus dan gambar baru di-upload.
+ * Jika imageFile null/undefined, image_path tidak berubah.
+ */
+export type LayananPublikUpdateFormPayload = Omit<LayananPublikUpdate, "image_path"> & {
+  imageFile?: File | null;
+  /** URL/path gambar saat ini — dibutuhkan untuk menghapus file lama jika ada gambar baru. */
+  currentImagePath?: string | null;
+};
+
+/**
+ * Update layanan publik dengan upload gambar opsional.
+ * Flow: (opsional) hapus gambar lama → upload gambar baru → update DB.
+ */
+export async function updateLayananPublikWithImage(
+  payload: LayananPublikUpdateFormPayload
+): Promise<LayananPublik> {
+  const { imageFile, currentImagePath, ...dbPayload } = payload;
+  const BUCKET = "layanan-images" as any;
+
+  let image_path: string | null | undefined = undefined; // undefined = tidak berubah
+
+  if (imageFile) {
+    if (currentImagePath) {
+      try {
+        const oldPath = extractPathFromUrl(currentImagePath);
+        await deleteFile(BUCKET, oldPath);
+      } catch {
+        // Lanjut meski hapus gagal — file mungkin sudah tidak ada
+      }
+    }
+    const storagePath = buildStoragePath("icons", imageFile);
+    image_path = await uploadFile(BUCKET, storagePath, imageFile);
+  }
+
+  // Hanya sertakan image_path jika ada perubahan
+  const updatePayload: LayananPublikUpdate =
+    image_path !== undefined
+      ? { ...dbPayload, image_path }
+      : dbPayload;
+
+  return updateLayananPublik(updatePayload);
+}
+
+/**
+ * Hapus layanan publik beserta file gambarnya dari storage.
+ * Gunakan di admin untuk clean delete.
+ */
+export async function deleteLayananPublikWithImage(layanan: LayananPublik): Promise<void> {
+  const BUCKET = "layanan-images" as any;
+
+  if (layanan.image_path) {
+    try {
+      const storagePath = extractPathFromUrl(layanan.image_path);
+      await deleteFile(BUCKET, storagePath);
+    } catch {
+      // Lanjut meski hapus storage gagal
+    }
+  }
+
+  await deleteLayananPublik(layanan.id);
+}
+
 // ---------------------------------------------------------------------------
 // banner_items
 // ---------------------------------------------------------------------------
@@ -470,6 +646,53 @@ export async function deleteBannerItem(id: string): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase.from("banner_items").delete().eq("id", id);
   if (error) throw new Error(error.message);
+}
+
+// --- Form-level mutations BannerItem (DB + Storage terintegrasi) ---
+
+/**
+ * Payload form update banner item.
+ * Jika imageFile diberikan, gambar lama dihapus dan gambar baru di-upload.
+ * Jika imageFile null/undefined, image_path tidak berubah.
+ */
+export type BannerItemUpdateFormPayload = Omit<BannerItemUpdate, "image_path"> & {
+  imageFile?: File | null;
+  /** URL/path gambar saat ini — dibutuhkan untuk menghapus file lama jika ada gambar baru. */
+  currentImagePath?: string | null;
+};
+
+/**
+ * Update banner item dengan upload gambar opsional.
+ * Flow: (opsional) hapus gambar lama → upload gambar baru → update DB.
+ */
+export async function updateBannerItemWithImage(
+  payload: BannerItemUpdateFormPayload
+): Promise<BannerItem> {
+  const { imageFile, currentImagePath, ...dbPayload } = payload;
+  const BUCKET = "layanan-images" as any;
+
+  let image_path: string | null | undefined = undefined; // undefined = tidak berubah
+
+  if (imageFile) {
+    if (currentImagePath) {
+      try {
+        const oldPath = extractPathFromUrl(currentImagePath);
+        await deleteFile(BUCKET, oldPath);
+      } catch {
+        // Lanjut meski hapus gagal — file mungkin sudah tidak ada
+      }
+    }
+    const storagePath = buildStoragePath("banners", imageFile);
+    image_path = await uploadFile(BUCKET, storagePath, imageFile);
+  }
+
+  // Hanya sertakan image_path jika ada perubahan
+  const updatePayload: BannerItemUpdate =
+    image_path !== undefined
+      ? { ...dbPayload, image_path }
+      : dbPayload;
+
+  return updateBannerItem(updatePayload);
 }
 
 // ---------------------------------------------------------------------------

@@ -29,9 +29,9 @@ export function Hero({ heroSlides }: HeroProps) {
       {/* Background Slider */}
       {heroSlides.map((item, index) => (
         <Image
-          key={item.image}
+          key={item.alt}
           src={item.image}
-          alt={item.alt}
+          alt={item.alt ?? "Hero image"}
           fill
           priority={index === 0}
           sizes="100vw"

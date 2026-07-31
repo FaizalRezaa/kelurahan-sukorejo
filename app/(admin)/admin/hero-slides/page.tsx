@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -16,11 +16,13 @@ import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { queryKeys } from "@/lib/query/keys";
 import {
   fetchHeroSlides,
-  insertHeroSlide,
-  updateHeroSlide,
-  deleteHeroSlide,
+  insertHeroSlideWithImage,
+  updateHeroSlideWithImage,
+  deleteHeroSlideWithImage,
+  type HeroSlideInsertFormPayload,
+  type HeroSlideUpdateFormPayload,
 } from "@/lib/query/fetcher";
-import type { HeroSlide, HeroSlideInsert, HeroSlideUpdate } from "@/lib/query/schema";
+import type { HeroSlide } from "@/lib/query/schema";
 
 export default function HeroSlidesPage() {
   const queryClient = useQueryClient();
@@ -44,7 +46,7 @@ export default function HeroSlidesPage() {
   });
 
   const insertMutation = useMutation({
-    mutationFn: (payload: HeroSlideInsert) => insertHeroSlide(payload),
+    mutationFn: (payload: HeroSlideInsertFormPayload) => insertHeroSlideWithImage(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.heroSlides.all() });
       setIsDialogOpen(false);
@@ -52,7 +54,7 @@ export default function HeroSlidesPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (payload: HeroSlideUpdate) => updateHeroSlide(payload),
+    mutationFn: (payload: HeroSlideUpdateFormPayload) => updateHeroSlideWithImage(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.heroSlides.all() });
       setIsDialogOpen(false);
@@ -60,7 +62,7 @@ export default function HeroSlidesPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteHeroSlide(id),
+    mutationFn: (slide: HeroSlide) => deleteHeroSlideWithImage(slide),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.heroSlides.all() });
       setIsDeleteDialogOpen(false);
@@ -99,35 +101,31 @@ export default function HeroSlidesPage() {
     if (!formAlt.trim()) return;
 
     if (editingSlide) {
-      const payload: HeroSlideUpdate = {
+      // Update: imageFile opsional — hanya dikirim jika user ganti gambar
+      const payload: HeroSlideUpdateFormPayload = {
         id: editingSlide.id,
         alt: formAlt,
         urutan: Number(formUrutan),
         aktif: formAktif,
+        imageFile: formImageFile ?? null,
+        currentImagePath: editingSlide.image_path,
       };
-      if (formImageFile) {
-        // image_path harus berupa URL string, upload perlu dilakukan manual
-        // atau tambahkan integrasi storage di sini jika diperlukan
-        // Untuk sekarang hanya update metadata tanpa ganti gambar via file picker
-      }
-      if (formImagePath !== editingSlide.image_path) {
-        (payload as HeroSlideUpdate).image_path = formImagePath;
-      }
       updateMutation.mutate(payload);
     } else {
-      if (!formImagePath.trim()) return;
-      const payload: HeroSlideInsert = {
-        image_path: formImagePath,
+      // Insert: imageFile wajib ada
+      if (!formImageFile) return;
+      const payload: HeroSlideInsertFormPayload = {
         alt: formAlt,
         urutan: Number(formUrutan),
         aktif: formAktif,
+        imageFile: formImageFile,
       };
       insertMutation.mutate(payload);
     }
   };
 
   const confirmDelete = () => {
-    if (deletingItem) deleteMutation.mutate(deletingItem.id);
+    if (deletingItem) deleteMutation.mutate(deletingItem);
   };
 
   const isSaving = insertMutation.isPending || updateMutation.isPending;
@@ -263,6 +261,7 @@ export default function HeroSlidesPage() {
               bucket="hero-images"
               value={formImagePath}
               onChange={setFormImagePath}
+              onFileSelect={setFormImageFile}
               required={!editingSlide}
               previewAlt={formAlt || "Banner hero"}
               previewClassName="h-32"

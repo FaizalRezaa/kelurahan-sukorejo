@@ -27,6 +27,8 @@ interface ImageUploadFieldProps {
   bucket: StorageBucket;
   value: string;
   onChange: (imagePath: string) => void;
+  /** Dipanggil dengan objek File asli setiap kali user memilih gambar baru. */
+  onFileSelect?: (file: File) => void;
   required?: boolean;
   previewAlt?: string;
   hint?: string;
@@ -38,6 +40,7 @@ export function ImageUploadField({
   bucket,
   value,
   onChange,
+  onFileSelect,
   required = false,
   previewAlt = "Pratinjau gambar",
   hint = "Format JPG, PNG, atau WebP. Maks. 5 MB.",
@@ -68,6 +71,7 @@ export function ImageUploadField({
     setPreviewUrl(URL.createObjectURL(file));
     setFileName(file.name);
     onChange(buildStoragePath(bucket, file.name));
+    onFileSelect?.(file);
   };
 
   const handleClear = () => {
