@@ -69,13 +69,11 @@ export function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b py-6 md:py-8 ${
-        isVisible ? "translate-y-0" : "-translate-y-full"
-      } ${
-        isTransparent
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b py-6 md:py-8 ${isVisible ? "translate-y-0" : "-translate-y-full"
+        } ${isTransparent
           ? "bg-transparent border-transparent"
           : "bg-white/95 border-zinc-200/80 shadow-sm"
-      }`}
+        }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 flex items-center justify-between">
         {/* DESKTOP NAVIGATION */}
@@ -84,11 +82,10 @@ export function Navbar() {
             <Link
               key={link.name}
               href={link.href}
-              className={`text-base font-semibold transition-colors ${
-                isTransparent
+              className={`text-base font-semibold transition-colors ${isTransparent
                   ? "text-white hover:text-gray-200"
                   : "text-zinc-600 hover:text-[#2d5e45]"
-              }`}
+                }`}
             >
               {link.name}
             </Link>
@@ -101,11 +98,10 @@ export function Navbar() {
             href="https://api.whatsapp.com/send/?phone=6281326326295&text&type=phone_number&app_absent=0"
             target="_blank"
             rel="noopener noreferrer"
-            className={`rounded-full px-8 py-3.5 text-base font-bold shadow-md transition-all active:scale-95 ${
-              isTransparent
+            className={`rounded-full px-8 py-3.5 text-base font-bold shadow-md transition-all active:scale-95 ${isTransparent
                 ? "bg-white/10 text-white hover:bg-white/20"
                 : "bg-[#2d5e45] text-white hover:bg-[#1e402f] hover:shadow-lg"
-            }`}
+              }`}
           >
             Hubungi Kami
           </Link>
@@ -114,11 +110,10 @@ export function Navbar() {
         {/* MOBILE MENU BUTTON */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className={`lg:hidden p-2 -mr-2 rounded-lg transition-colors z-50 focus:outline-none ${
-            isTransparent && !isOpen
+          className={`lg:hidden p-2 -mr-2 rounded-lg transition-colors z-50 focus:outline-none ${isTransparent && !isOpen
               ? "text-white hover:bg-white/20"
               : "text-zinc-900 hover:bg-zinc-200/60"
-          }`}
+            }`}
           aria-label="Toggle Menu"
         >
           {isOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
@@ -127,9 +122,8 @@ export function Navbar() {
 
       {/* MOBILE DROPDOWN MENU */}
       <div
-        className={`absolute top-0 left-0 w-full h-screen bg-[#f4f1ea] pt-28 px-6 transition-transform duration-300 ease-in-out lg:hidden ${
-          isOpen ? "translate-y-0" : "-translate-y-full"
-        }`}
+        className={`absolute top-0 left-0 w-full h-screen bg-[#f4f1ea] pt-28 px-6 transition-transform duration-300 ease-in-out lg:hidden ${isOpen ? "translate-y-0" : "-translate-y-full"
+          }`}
       >
         <nav className="flex flex-col space-y-6 text-center">
           {navLinks.map((link) => (
@@ -137,7 +131,7 @@ export function Navbar() {
               key={link.name}
               href={link.href}
               onClick={() => setIsOpen(false)}
-              className="text-2xl font-bold text-zinc-800 hover:text-[#2d5e45] transition-colors"
+              className="text-xl font-semibold text-zinc-800 hover:text-[#2d5e45] transition-colors"
             >
               {link.name}
             </Link>

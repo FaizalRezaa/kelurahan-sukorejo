@@ -294,7 +294,7 @@ export default async function Page() {
           <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-10">
             <div className="text-center mb-10 sm:mb-14">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-zinc-900 mb-2">
-                Berita & Kegiatan Terbaru
+                Baca Artikel Terbaru Kami
               </h2>
               <p className="text-sm sm:text-base text-zinc-600 font-medium max-w-xl mx-auto mb-4">
                 Informasi terkini tentang kegiatan dan program pemerintah
@@ -313,7 +313,7 @@ export default async function Page() {
                 href="/artikel"
                 className="inline-flex items-center justify-center rounded-full border-2 border-[#2d5e45] bg-transparent px-8 py-3 text-base font-bold text-[#2d5e45] transition-all duration-300 hover:bg-[#2d5e45] hover:text-white active:scale-95 shadow-sm"
               >
-                Lihat Semua Berita & Kegiatan
+                Lihat Semua Artikel
               </Link>
             </div>
           </div>
