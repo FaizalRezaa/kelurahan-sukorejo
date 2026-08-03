@@ -98,7 +98,9 @@ export function Navbar() {
         {/* DESKTOP ACTION BUTTON */}
         <div className="hidden lg:block z-50">
           <Link
-            href="/kontak"
+            href="https://api.whatsapp.com/send/?phone=6281326326295&text&type=phone_number&app_absent=0"
+            target="_blank"
+            rel="noopener noreferrer"
             className={`rounded-full px-8 py-3.5 text-base font-bold shadow-md transition-all active:scale-95 ${
               isTransparent
                 ? "bg-white/10 text-white hover:bg-white/20"
@@ -142,7 +144,9 @@ export function Navbar() {
           ))}
           <div className="pt-8">
             <Link
-              href="/kontak"
+              href="https://api.whatsapp.com/send/?phone=6281326326295&text&type=phone_number&app_absent=0"
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={() => setIsOpen(false)}
               className="inline-block w-full max-w-sm mx-auto rounded-full bg-[#2d5e45] px-6 py-4 text-lg font-bold text-white shadow-md hover:bg-[#1e402f] transition-all"
             >

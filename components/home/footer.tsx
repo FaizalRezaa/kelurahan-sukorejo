@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 function InstagramIcon() {
   return (
@@ -27,9 +28,13 @@ export function Footer() {
             className="inline-flex items-center gap-3"
             aria-label="Kelurahan Sukorejo, beranda"
           >
-            <span className="grid size-11 place-items-center rounded-full border border-[#e4c77d]/80 bg-[#e4c77d]/15 font-serif text-xl font-bold text-[#f6e2a9]">
-              S
-            </span>
+            <Image
+              src="/logo-pemkab-blitar.png"
+              alt="Logo Pemkab Blitar"
+              width={44}
+              height={44}
+              className="object-contain"
+            />
             <span className="text-xs font-bold leading-tight tracking-[0.16em]">
               KELURAHAN<span className="block text-white/65">SUKOREJO</span>
             </span>
@@ -47,12 +52,14 @@ export function Footer() {
           <address className="mt-4 not-italic text-sm leading-relaxed text-white/75">
             Kantor Kelurahan Sukorejo
             <br />
-            Jl. Sukorejo No. 1
+            Jl. Kelud No.72, Sukorejo
             <br />
-            Sukorejo, Kota Blitar
+            Kec. Sutojayan, Kabupaten Blitar
+            <br />
+            Jawa Timur 66172
           </address>
           <a
-            href="https://maps.google.com/?q=Kelurahan+Sukorejo"
+            href="https://www.google.com/maps/place/Jl.+Kelud+No.72,+Sukorejo,+Kec.+Sutojayan,+Kabupaten+Blitar,+Jawa+Timur+66172/@-8.172598,112.2311344,1319m/data=!3m2!1e3!4b1!4m6!3m5!1s0x2e78eb81dee80f93:0x4646158486f83d6d!8m2!3d-8.1726033!4d112.2337093!16s%2Fg%2F11w1h_jtqc?entry=tts&g_ep=EgoyMDI2MDcyNy4wIPu8ASoASAFQAw%3D%3D&skid=27fce479-4e7c-4112-b759-035ef8456caf"
             target="_blank"
             rel="noreferrer"
             className="mt-4 inline-flex text-sm font-semibold text-[#e4c77d] transition hover:text-[#f6e2a9]"
@@ -71,11 +78,11 @@ export function Footer() {
           <dl className="mt-4 space-y-3 text-sm text-white/75">
             <div className="flex justify-between gap-5">
               <dt>Senin — Kamis</dt>
-              <dd>08.00 — 15.00</dd>
+              <dd>07.30 — 15.30</dd>
             </div>
             <div className="flex justify-between gap-5">
               <dt>Jumat</dt>
-              <dd>08.00 — 14.30</dd>
+              <dd>07.30 — 16.00</dd>
             </div>
             <div className="border-t border-white/15 pt-3">
               <dt className="text-white/55">
@@ -91,16 +98,18 @@ export function Footer() {
           </h2>
           <div className="mt-4 space-y-3 text-sm text-white/75">
             <a
-              href="tel:+62342000000"
+              href="https://api.whatsapp.com/send/?phone=6281326326295&text&type=phone_number&app_absent=0"
+              target="_blank"
+              rel="noopener noreferrer"
               className="block transition hover:text-[#f6e2a9]"
             >
-              (0342) 000 000
+              +62 813-2632-6295
             </a>
             <a
-              href="mailto:kelurahan.sukorejo@blitar.go.id"
+              href="mailto:kelurahan.sukorejo.blitarkab@gmail.com"
               className="block break-words transition hover:text-[#f6e2a9]"
             >
-              kelsukorejo.sutojayan@gmail.com
+              kelurahan.sukorejo.blitarkab@gmail.com
             </a>
           </div>
           <a

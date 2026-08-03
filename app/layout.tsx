@@ -5,6 +5,9 @@ import Providers from "@/app/providers";
 export const metadata: Metadata = {
   title: "Kelurahan Sukorejo",
   description: "Website Resmi Kelurahan Sukorejo",
+  icons: {
+    icon: "/logo-pemkab-blitar.png",
+  },
 };
 
 export default function RootLayout({

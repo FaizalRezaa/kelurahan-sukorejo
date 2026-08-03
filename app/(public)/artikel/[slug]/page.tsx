@@ -69,7 +69,7 @@ export default async function ArticleSlugPage({
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-zinc-900/30 to-zinc-900/20" />
 
         {/* Back button */}
-        <div className="absolute top-0 left-0 right-0 pt-24 px-4 sm:px-6 md:px-10">
+        <div className="absolute mt-12 top-0 left-0 right-0 pt-24 px-4 sm:px-6 md:px-10">
           <div className="max-w-4xl mx-auto">
             <Link
               href="/artikel"
@@ -85,9 +85,8 @@ export default async function ArticleSlugPage({
         <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-6 md:px-10 pb-8">
           <div className="max-w-4xl mx-auto">
             <span
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-4 ${
-                categoryBadge[artikel.kategori] || "bg-zinc-200 text-zinc-800"
-              }`}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-4 ${categoryBadge[artikel.kategori] || "bg-zinc-200 text-zinc-800"
+                }`}
             >
               <Tag className="w-3 h-3" />
               {artikel.kategori}
@@ -124,14 +123,7 @@ export default async function ArticleSlugPage({
 
         {/* Tags & Share */}
         <div className="mt-12 pt-8 border-t border-zinc-200 flex flex-wrap items-center justify-between gap-4">
-          <span
-            className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold ${
-              categoryBadge[artikel.kategori] || "bg-zinc-200 text-zinc-800"
-            }`}
-          >
-            <Tag className="w-3.5 h-3.5" />
-            {artikel.kategori}
-          </span>
+
           <Link
             href="/artikel"
             className="inline-flex items-center gap-2 text-sm font-semibold text-[#2d5e45] hover:underline"
