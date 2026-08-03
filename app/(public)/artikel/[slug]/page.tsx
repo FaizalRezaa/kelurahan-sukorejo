@@ -68,18 +68,7 @@ export default async function ArticleSlugPage({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-zinc-900/30 to-zinc-900/20" />
 
-        {/* Back button */}
-        <div className="absolute mt-12 top-0 left-0 right-0 pt-24 px-4 sm:px-6 md:px-10">
-          <div className="max-w-4xl mx-auto">
-            <Link
-              href="/artikel"
-              className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm font-medium transition-colors group"
-            >
-              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-              Kembali ke Artikel
-            </Link>
-          </div>
-        </div>
+
 
         {/* Title overlay */}
         <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-6 md:px-10 pb-8">
