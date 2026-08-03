@@ -11,8 +11,8 @@ export const revalidate = 0;
 
 const categoryBadge: Record<string, string> = {
   Berita: "bg-emerald-100 text-emerald-800",
-  Pengumuman: "bg-amber-100 text-amber-800",
-  Kegiatan: "bg-sky-100 text-sky-800",
+  Pengumuman: "bg-purple-100 text-purple-800",
+  Kegiatan: "bg-blue-100 text-blue-800",
 };
 
 export async function generateMetadata({
